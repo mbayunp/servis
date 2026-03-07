@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Putih */
+  --foreground: #171717; /* Hitam keabu-abuan untuk teks */
 }
 
 @theme inline {
@@ -10,6 +10,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary: #dc2626;       /* Merah utama (untuk tombol/header) */
+  --color-primary-light: #ef4444; /* Merah terang (untuk hover) */
+  --color-primary-dark: #b91c1c;  /* Merah gelap (untuk teks penting) */
+  --color-primary-50: #fef2f2;    /* Merah sangat pudar (untuk background section) */
 }
 
 @media (prefers-color-scheme: dark) {
