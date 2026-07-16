@@ -10,7 +10,7 @@ export const metadata = {
   description: 'Melayani perbaikan TV, Mesin Cuci, Kulkas, dan AC di Kabupaten Cianjur dan sekitarnya.',
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
       <body className={`${inter.className} bg-gray-50 text-gray-900 flex flex-col min-h-screen`}>
