@@ -1,31 +1,60 @@
 import app from './app.js';
-import env from './config/env.js';
 import sequelize from './config/database.js';
-import logger from './config/logger.js';
-import { setupAssociations } from './config/setupAssociations.js';
+import { setupAssociations } from './models/index.js';
+
+const PORT = process.env.PORT || 5000;
+let server: any;
 
 const startServer = async () => {
   try {
-    // Database connection test
     await sequelize.authenticate();
-    logger.info('Database connection has been established successfully.');
+    console.log('Database connection has been established successfully.');
 
-    // Initialize model associations
     setupAssociations();
-    logger.info('Model associations configured.');
+    console.log('Model associations configured.');
 
-    // Sync models (WARNING: In production, use migrations instead of sync)
     await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-    logger.info('Database synchronized.');
+    console.log('Database synchronized.');
 
-    // Start server
-    app.listen(env.PORT, () => {
-      logger.info(`Server is running on port ${env.PORT}`);
+    server = app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Unable to connect to the database or start server:', error);
+    console.error('Unable to connect to the database or start server:', error);
     process.exit(1);
   }
 };
 
 startServer();
+
+const gracefulShutdown = (signal: string) => {
+  console.log(`Received ${signal}. Shutting down gracefully...`);
+  if (server) {
+    server.close(async () => {
+      console.log('HTTP server closed.');
+      try {
+        await sequelize.close();
+        console.log('Database connection closed.');
+        process.exit(0);
+      } catch (err) {
+        console.error('Error closing database connection:', err);
+        process.exit(1);
+      }
+    });
+  } else {
+    process.exit(0);
+  }
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  gracefulShutdown('uncaughtException');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('unhandledRejection');
+});

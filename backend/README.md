@@ -1,69 +1,79 @@
-# Backend Servis Cianjur
+# Servis Cianjur Backend API
 
-This is the backend for the Servis Cianjur application. Built with Node.js, Express, TypeScript, and MySQL.
+Ini adalah repositori backend untuk sistem ERP Servis Cianjur. Aplikasi ini dibangun dengan menggunakan arsitektur **Feature-Based Modular Architecture** di atas platform Node.js, Express, dan TypeScript.
 
-## Teknologi
+## Persyaratan
+- Node.js (v18 atau lebih baru disarankan)
+- MySQL (v8.0 disarankan)
+- npm (Node Package Manager)
 
-- Node.js & Express.js
-- TypeScript
-- MySQL & Sequelize ORM
-- JWT & bcrypt
-- CORS, Helmet, Morgan, Compression, Cookie-Parser
+## Instalasi
+1. Masuk ke direktori backend:
+   ```bash
+   cd backend
+   ```
+2. Instal semua dependensi:
+   ```bash
+   npm install
+   ```
+
+## Environment
+1. Salin file konfigurasi environment:
+   ```bash
+   cp .env.example .env
+   ```
+2. Sesuaikan variabel dalam `.env` dengan konfigurasi server MySQL dan kunci JWT Anda.
+
+## Migration & Seeder
+Proyek ini menggunakan Sequelize ORM.
+1. Untuk menjalankan migrasi tabel database:
+   ```bash
+   npm run db:migrate
+   ```
+2. Untuk menanamkan data awal (*seeding*):
+   ```bash
+   npm run db:seed
+   ```
+
+## Menjalankan Server
+**Mode Development:**
+```bash
+npm run dev
+```
+Server akan menggunakan `tsx` dan `nodemon` untuk *hot-reloading*.
+
+**Mode Production:**
+```bash
+npm run start
+```
+
+## Build Production
+Untuk men-compile TypeScript ke JavaScript murni (di folder `/dist`):
+```bash
+npm run build
+```
+
+## Swagger
+Dokumentasi API lengkap tersedia melalui Swagger UI.
+Setelah server berjalan, Anda dapat mengakses dokumentasinya di:
+[http://localhost:5000/api/docs](http://localhost:5000/api/docs)
 
 ## Struktur Folder
+```
+src/
+├── config/        # Konfigurasi eksternal (DB, Logger, dll)
+├── middleware/    # Filter proteksi, auth, rate-limit
+├── modules/       # Domain entitas fungsional (Route, Controller, Service)
+├── seeders/       # Data dummy (awal) untuk database
+├── shared/        # Utilitas global, error format, constants
+├── types/         # Typescript definitions
+├── uploads/       # Direktori penyimpanan media/dokumen
+├── utils/         # Helper spesifik seperti formatter, pagination
+├── app.ts         # Registrasi middleware
+└── server.ts      # HTTP & Koneksi Node
+```
 
-\`\`\`
-backend/
-├── src/
-│   ├── config/        # Konfigurasi aplikasi (Database, env, dll)
-│   ├── controllers/   # Request handler logic
-│   ├── middlewares/   # Express middlewares (auth, error, dll)
-│   ├── migrations/    # Sequelize migrations
-│   ├── models/        # Sequelize models
-│   ├── repositories/  # Database queries (Data Access Layer)
-│   ├── routes/        # Definisi rute Express
-│   ├── seeders/       # Data awal untuk database
-│   ├── services/      # Business logic
-│   ├── types/         # TypeScript type definition
-│   ├── uploads/       # Folder untuk menyimpan file upload
-│   ├── utils/         # Utility function dan helper
-│   ├── validators/    # Validasi input request
-│   ├── app.ts         # Inisialisasi Express app
-│   └── server.ts      # Server entry point
-├── docs/              # Dokumentasi tambahan
-├── .env.example       # Template env file
-├── package.json       # Dependencies dan script npm
-└── tsconfig.json      # Konfigurasi TypeScript
-\`\`\`
-
-## Cara Install
-
-1. Pindah ke direktori \`backend\`:
-   \`\`\`bash
-   cd backend
-   \`\`\`
-2. Install dependencies:
-   \`\`\`bash
-   npm install
-   \`\`\`
-
-## Cara Menjalankan
-
-1. Copy file \`.env.example\` menjadi \`.env\` dan sesuaikan konfigurasinya:
-   \`\`\`bash
-   cp .env.example .env
-   \`\`\`
-2. Pastikan database MySQL sudah berjalan dan sesuai dengan konfigurasi di \`.env\`.
-3. Jalankan server pada mode development:
-   \`\`\`bash
-   npm run dev
-   \`\`\`
-4. Akses API melalui \`http://localhost:5000/api\`
-
-## Script NPM
-
-- \`npm run dev\`: Menjalankan server development dengan nodemon
-- \`npm run build\`: Melakukan compile TypeScript menjadi JavaScript ke folder \`dist\`
-- \`npm start\`: Menjalankan server production
-- \`npm run db:migrate\`: Menjalankan migrasi database
-- \`npm run db:seed\`: Menjalankan seeder database
+## Coding Convention
+- Gunakan *strict mode* Typescript (Hindari `any`).
+- Format pengembalian *response* HTTP WAJIB menggunakan fungsi dari `src/utils/response.ts` agar seragam.
+- Jangan letakkan fungsi `controller` atau `route` secara global. Semuanya harus ditempatkan di dalam hirarki `modules/[nama-modul]`.

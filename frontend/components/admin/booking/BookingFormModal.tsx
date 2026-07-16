@@ -1,0 +1,172 @@
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import api from '../../../lib/axios';
+
+interface BookingFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  booking?: any;
+  onSuccess: () => void;
+}
+
+export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: BookingFormModalProps) {
+  const [loading, setLoading] = useState(false);
+  const [customers, setCustomers] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [deviceTypes, setDeviceTypes] = useState([]);
+  const [serviceCategories, setServiceCategories] = useState([]);
+
+  const [formData, setFormData] = useState({
+    customerId: '',
+    brandId: '',
+    deviceTypeId: '',
+    serviceCategoryId: '',
+    deviceName: '',
+    serialNumber: '',
+    complaint: '',
+    isHomeService: false,
+    priority: 'NORMAL'
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      // Fetch Master Data
+      api.get('/customers').then(res => setCustomers(res.data.data));
+      api.get('/brands').then(res => setBrands(res.data.data));
+      api.get('/device-types').then(res => setDeviceTypes(res.data.data));
+      api.get('/service-categories').then(res => setServiceCategories(res.data.data));
+
+      if (booking) {
+        setFormData({
+          customerId: booking.customerId || '',
+          brandId: booking.brandId || '',
+          deviceTypeId: booking.deviceTypeId || '',
+          serviceCategoryId: booking.serviceCategoryId || '',
+          deviceName: booking.deviceName || '',
+          serialNumber: booking.serialNumber || '',
+          complaint: booking.complaint || '',
+          isHomeService: booking.isHomeService || false,
+          priority: booking.priority || 'NORMAL'
+        });
+      } else {
+        setFormData({
+          customerId: '', brandId: '', deviceTypeId: '', serviceCategoryId: '',
+          deviceName: '', serialNumber: '', complaint: '', isHomeService: false, priority: 'NORMAL'
+        });
+      }
+    }
+  }, [isOpen, booking]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (booking) {
+        await api.put(`/bookings/${booking.id}`, formData);
+      } else {
+        await api.post('/bookings', formData);
+      }
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menyimpan booking');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={onClose}></div>
+        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
+          <form onSubmit={handleSubmit}>
+            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div className="flex justify-between items-center mb-5">
+                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                  {booking ? 'Edit Booking' : 'Tambah Booking Baru'}
+                </h3>
+                <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-500">
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Customer</label>
+                  <select required value={formData.customerId} onChange={e => setFormData({...formData, customerId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                    <option value="">Pilih Customer...</option>
+                    {customers.map((c: any) => <option key={c.id} value={c.id}>{c.name} - {c.phone}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Kategori Servis</label>
+                  <select required value={formData.serviceCategoryId} onChange={e => setFormData({...formData, serviceCategoryId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                    <option value="">Pilih Kategori...</option>
+                    {serviceCategories.map((sc: any) => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tipe Perangkat</label>
+                  <select required value={formData.deviceTypeId} onChange={e => setFormData({...formData, deviceTypeId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                    <option value="">Pilih Tipe...</option>
+                    {deviceTypes.map((dt: any) => <option key={dt.id} value={dt.id}>{dt.name}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Brand</label>
+                  <select required value={formData.brandId} onChange={e => setFormData({...formData, brandId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                    <option value="">Pilih Brand...</option>
+                    {brands.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Nama Unit / Model</label>
+                  <input required type="text" value={formData.deviceName} onChange={e => setFormData({...formData, deviceName: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Contoh: MacBook Pro M1" />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Keluhan</label>
+                  <textarea required rows={3} value={formData.complaint} onChange={e => setFormData({...formData, complaint: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Jelaskan kendala perangkat secara detail..."></textarea>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Prioritas</label>
+                  <select value={formData.priority} onChange={e => setFormData({...formData, priority: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                    <option value="LOW">Low</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center mt-6">
+                  <input id="homeService" type="checkbox" checked={formData.isHomeService} onChange={e => setFormData({...formData, isHomeService: e.target.checked})} className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                  <label htmlFor="homeService" className="ml-2 block text-sm text-gray-900">Home Service (Kunjungan)</label>
+                </div>
+              </div>
+
+            </div>
+            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+              <button type="submit" disabled={loading} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:bg-blue-300">
+                {loading ? 'Menyimpan...' : 'Simpan Booking'}
+              </button>
+              <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

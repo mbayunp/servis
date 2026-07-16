@@ -1,7 +1,13 @@
+"use client";
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FaPhoneAlt, FaMapMarkerAlt, FaClock, FaFacebook, FaInstagram, FaWhatsapp } from 'react-icons/fa';
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isAdminOrAuth = pathname.startsWith('/admin') || pathname === '/login' || pathname === '/register';
+
+  if (isAdminOrAuth) return null;
   return (
     <footer className="bg-gray-900 text-white pt-16 pb-8 border-t-4 border-red-600 relative overflow-hidden">
       {/* Dekorasi Latar Belakang (Opsional) */}
@@ -29,6 +35,16 @@ export default function Footer() {
               <a href="#" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-green-500 hover:text-white hover:-translate-y-1 transition-all duration-300 shadow-lg">
                 <FaWhatsapp size={18} />
               </a>
+            </div>
+
+            {/* Tombol Login Admin */}
+            <div className="mt-6">
+              <Link 
+                href="/login" 
+                className="inline-flex items-center gap-2 text-xs bg-gray-800 text-gray-300 hover:text-white hover:bg-red-600 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300"
+              >
+                Login Admin
+              </Link>
             </div>
           </div>
 

@@ -1,19 +1,26 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const isAdminOrAuth = pathname.startsWith('/admin') || pathname === '/login' || pathname === '/register';
+
   // Efek untuk mendeteksi scroll agar navbar menjadi "glass" (kaca)
   useEffect(() => {
+    if (isAdminOrAuth) return;
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isAdminOrAuth]);
+
+  if (isAdminOrAuth) return null;
 
   const menuItems = [
     { title: "Beranda", path: "/" },
