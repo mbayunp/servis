@@ -228,13 +228,13 @@ export default function PublicTrackingPage() {
                       style={{ width: `${result.progressPercentage || 20}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-[10px] font-semibold text-slate-400 pt-1">
-                    <span>Diterima</span>
-                    <span>Pemeriksaan</span>
-                    <span>Persetujuan</span>
-                    <span>Perbaikan</span>
-                    <span>QC</span>
-                    <span>Selesai</span>
+                  <div className="flex justify-between text-[10px] font-semibold text-slate-400 pt-1 overflow-x-auto gap-2 min-w-0">
+                    <span className="whitespace-nowrap">Diterima</span>
+                    <span className="whitespace-nowrap">Pemeriksaan</span>
+                    <span className="whitespace-nowrap">Persetujuan</span>
+                    <span className="whitespace-nowrap">Perbaikan</span>
+                    <span className="whitespace-nowrap">QC</span>
+                    <span className="whitespace-nowrap">Selesai</span>
                   </div>
                 </div>
 
@@ -313,18 +313,18 @@ export default function PublicTrackingPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
                       <button
                         onClick={handleApprove}
                         disabled={actionLoading}
-                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                        className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         <Check className="h-4 w-4" /> Setujui & Lanjutkan Perbaikan
                       </button>
                       <button
                         onClick={handleReject}
                         disabled={actionLoading}
-                        className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                        className="w-full sm:w-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         <X className="h-4 w-4" /> Batalkan Perbaikan
                       </button>

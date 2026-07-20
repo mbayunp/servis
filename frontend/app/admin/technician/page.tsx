@@ -170,14 +170,14 @@ export default function TechnicianPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Wrench className="h-6 w-6 text-blue-600" />
+            <Wrench className="h-6 w-6 text-red-600" />
             Manajemen Teknisi
           </h1>
           <p className="text-sm text-slate-500 mt-1">Kelola data teknisi perbaikan, status ketersediaan, dan keahlian.</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all duration-200 cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-sm transition-all duration-200 cursor-pointer"
         >
           <Plus className="-ml-1 mr-2 h-4 w-4" />
           Tambah Teknisi Baru

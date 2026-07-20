@@ -27,6 +27,8 @@ export default function Navbar() {
     { title: "Beranda", path: "/" },
     { title: "Tentang Kami", path: "/about" },
     { title: "Layanan", path: "/services" },
+    { title: "Artikel", path: "/articles" },
+    { title: "Galeri", path: "/gallery" },
     { title: "Cek Servis", path: "/tracking" },
   ];
 

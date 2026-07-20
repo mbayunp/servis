@@ -14,6 +14,7 @@ export default function AdminLayout({
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -23,13 +24,9 @@ export default function AdminLayout({
           throw new Error('No token found');
         }
         
-        // Check if token is valid
         await api.get('/auth/me');
         setIsAuthenticated(true);
       } catch (error) {
-        // If error (e.g. 401), the interceptor will try to refresh.
-        // If refresh fails, it will redirect to /login.
-        // But if there's no token at all, we manually redirect here.
         if (!localStorage.getItem('accessToken')) {
           router.push('/login');
         }
@@ -50,15 +47,23 @@ export default function AdminLayout({
   }
 
   if (!isAuthenticated) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col ml-64">
-        <AdminNavbar />
-        <main className="flex-1 p-6">
+    <div className="min-h-screen bg-slate-50 flex relative overflow-x-hidden">
+      {/* Sidebar for Desktop & Mobile Overlay */}
+      <AdminSidebar
+        isOpen={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+      />
+
+      {/* Main Content Container */}
+      <div className="flex-1 flex flex-col min-w-0 md:ml-64 transition-all duration-300">
+        <AdminNavbar
+          onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+        />
+        <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
           {children}
         </main>
       </div>

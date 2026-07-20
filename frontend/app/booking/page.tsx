@@ -165,7 +165,7 @@ export default function BookingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Jenis Layanan *</label>
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <label className={`flex-1 flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${formData.serviceType === 'Datang ke Workshop' ? 'border-red-600 bg-red-50 text-red-700 ring-1 ring-red-600' : 'border-gray-300 hover:bg-gray-50'}`}>
                       <input type="radio" name="serviceType" value="Datang ke Workshop" checked={formData.serviceType === 'Datang ke Workshop'} onChange={handleChange} className="sr-only" />
                       <MapPin className="w-5 h-5 mr-2" />

@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -20,8 +20,24 @@ import {
   FaQuoteLeft
 } from 'react-icons/fa';
 import { MdOutlineLocalLaundryService } from "react-icons/md";
+import api from '../lib/axios';
 
 export default function HomePage() {
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.get('/testimonials')
+      .then(res => {
+        if (res.data.success && Array.isArray(res.data.data)) {
+          const approved = res.data.data.filter((t: any) => t.status === 'APPROVED' || !t.status);
+          setTestimonials(approved.length > 0 ? approved : res.data.data);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch homepage testimonials:', err);
+      });
+  }, []);
+
   const whyChooseUs = [
     { title: "Berdiri Sejak 1990", desc: "Berpengalaman lebih dari 30 tahun melayani masyarakat Cianjur.", icon: <FaHistory /> },
     { title: "Home Service", desc: "Teknisi siap datang ke rumah pelanggan.", icon: <FaHome /> },
@@ -45,12 +61,6 @@ export default function HomePage() {
     { step: "4", title: "Perbaikan", desc: "Eksekusi teknis." },
     { step: "5", title: "Quality Check", desc: "Pengujian fungsi akhir." },
     { step: "6", title: "Selesai", desc: "Perangkat siap." }
-  ];
-
-  const testimonials = [
-    { name: "Bapak Budi", role: "Pelanggan Home Service", text: "Pelayanan sangat cepat dan teknisi ramah. TV LED saya yang tadinya mati total sekarang sudah nyala lagi seperti baru. Mantap Service Cianjur!" },
-    { name: "Ibu Siti", role: "Pelanggan Workshop", text: "Sudah langganan servis mesin cuci di sini sejak lama. Hasil perbaikannya selalu memuaskan dan garansinya jelas. Sangat direkomendasikan." },
-    { name: "Andi Pratama", role: "Pelanggan Home Service", text: "Teknisi datang tepat waktu, diagnosanya akurat dan biaya servis juga transparan tidak ada yang ditutup-tutupi. Sukses terus!" }
   ];
 
   const profile = {
@@ -234,32 +244,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONI */}
+      {/* TESTIMONI DINAMIS DARI BACKEND */}
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-black text-center mb-16 tracking-tight">Apa Kata Pelanggan Kami?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testi, i) => (
-              <div key={i} className="bg-white rounded-3xl p-8 border border-gray-200 hover:shadow-xl transition-all duration-300 relative group">
-                <FaQuoteLeft className="text-4xl text-red-50 absolute top-6 right-6 group-hover:text-red-100 transition-colors" />
-                <div className="flex text-amber-500 mb-6">
-                  {[...Array(5)].map((_, idx) => <FaStar key={idx} />)}
-                </div>
-                <p className="text-gray-700 italic mb-8 leading-relaxed relative z-10">
-                  "{testi.text}"
-                </p>
-                <div className="flex items-center gap-4 pt-6 border-t border-gray-100">
-                  <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
-                    {testi.name.charAt(0)}
-                  </div>
+          {testimonials.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {testimonials.map((testi: any, i: number) => (
+                <div key={testi.id || i} className="bg-white rounded-3xl p-8 border border-gray-200 hover:shadow-xl transition-all duration-300 relative group flex flex-col justify-between">
                   <div>
-                    <h4 className="font-bold text-black">{testi.name}</h4>
-                    <span className="text-sm text-gray-500">{testi.role}</span>
+                    <FaQuoteLeft className="text-4xl text-red-50 absolute top-6 right-6 group-hover:text-red-100 transition-colors" />
+                    <div className="flex text-amber-500 mb-6">
+                      {[...Array(testi.rating || 5)].map((_, idx) => <FaStar key={idx} />)}
+                    </div>
+                    <p className="text-gray-700 italic mb-8 leading-relaxed relative z-10">
+                      &quot;{testi.comment || testi.text}&quot;
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 pt-6 border-t border-gray-100">
+                    {testi.customerPhoto ? (
+                      <img src={testi.customerPhoto} alt={testi.customerName || testi.name} className="w-12 h-12 rounded-full object-cover shadow-md border" />
+                    ) : (
+                      <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md">
+                        {(testi.customerName || testi.name || 'P').charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="font-bold text-black">{testi.customerName || testi.name}</h4>
+                      <span className="text-xs text-slate-500">Pelanggan Terverifikasi</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-slate-400 text-sm">
+              Belum ada ulasan pelanggan.
+            </div>
+          )}
         </div>
       </section>
 

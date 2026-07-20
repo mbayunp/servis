@@ -18,7 +18,8 @@ import {
   Laptop,
   Layers,
   UserCheck,
-  ShieldCheck
+  ShieldCheck,
+  X
 } from 'lucide-react';
 import api from '../../lib/axios';
 
@@ -60,7 +61,12 @@ const navSections = [
   }
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -77,58 +83,90 @@ export function AdminSidebar() {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-slate-900 text-white min-h-screen fixed left-0 top-0">
-      <div className="flex items-center justify-center h-16 border-b border-slate-800 flex-shrink-0">
-        <span className="text-xl font-bold uppercase tracking-wider text-blue-400">Servis Cianjur</span>
-      </div>
-      <div className="flex-1 overflow-y-auto py-4">
-        <nav className="space-y-6 px-3">
-          {navSections.map((section) => (
-            <div key={section.title}>
-              <div className="px-2 mb-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                {section.title}
-              </div>
-              <div className="space-y-1">
-                {section.items.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-blue-600 text-white shadow-sm'
-                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                      }`}
-                    >
-                      <item.icon
-                        className={`mr-3 flex-shrink-0 h-4 w-4 ${
-                          isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
-                        }`}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-      </div>
-      <div className="p-4 border-t border-slate-800 space-y-3 flex-shrink-0">
-        <button 
-          onClick={handleLogout}
-          className="w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg text-slate-300 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
-        >
-          <LogOut className="mr-3 flex-shrink-0 h-4 w-4" aria-hidden="true" />
-          Logout
-        </button>
-        <div className="text-xs text-slate-500 text-center">
-          &copy; {new Date().getFullYear()} Servis Cianjur
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 md:hidden transition-opacity"
+          onClick={onClose}
+        ></div>
+      )}
+
+      {/* Sidebar Panel */}
+      <aside
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-slate-950 text-white flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
+          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between h-16 px-6 border-b border-slate-800/80 flex-shrink-0 bg-slate-900">
+          <div className="flex items-center gap-2.5">
+            <img
+              src="/logo.png"
+              alt="Servis Cianjur Logo"
+              className="w-9 h-9 object-contain drop-shadow"
+            />
+            <span className="text-base font-extrabold uppercase tracking-wider text-white">
+              Servis <span className="text-red-500">Cianjur</span>
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="md:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
-      </div>
-    </div>
+
+        <div className="flex-1 overflow-y-auto py-4">
+          <nav className="space-y-6 px-3">
+            {navSections.map((section) => (
+              <div key={section.title}>
+                <div className="px-2 mb-2 text-[10px] font-bold text-red-400/90 uppercase tracking-wider">
+                  {section.title}
+                </div>
+                <div className="space-y-1">
+                  {section.items.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={onClose}
+                        className={`group flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all duration-200 ${
+                          isActive
+                            ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                            : 'text-slate-300 hover:bg-slate-900 hover:text-red-400'
+                        }`}
+                      >
+                        <item.icon
+                          className={`mr-3 flex-shrink-0 h-4 w-4 transition-colors ${
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-red-400'
+                          }`}
+                          aria-hidden="true"
+                        />
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        <div className="p-4 border-t border-slate-800/80 space-y-3 flex-shrink-0 bg-slate-900">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl text-slate-300 hover:bg-red-600 hover:text-white transition-all cursor-pointer shadow-xs"
+          >
+            <LogOut className="mr-3 flex-shrink-0 h-4 w-4" aria-hidden="true" />
+            Logout
+          </button>
+          <div className="text-[11px] text-slate-500 text-center font-medium">
+            &copy; {new Date().getFullYear()} Servis Cianjur
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }
-
