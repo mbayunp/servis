@@ -44,6 +44,10 @@ import dashboardRoute from './routes/dashboard.route.js';
 import invoiceRoute from './routes/invoice.route.js';
 import paymentRoute from './routes/payment.route.js';
 import customerRoute from './routes/customer.route.js';
+import articleRoute from './routes/article.route.js';
+import galleryRoute from './routes/gallery.route.js';
+import testimonialRoute from './routes/testimonial.route.js';
+import settingsRoute from './routes/settings.route.js';
 
 // 5. API Routes
 app.get('/api', (_req, res) => res.json({ success: true, message: 'Servis Cianjur API v2 (MVC) is running' }));
@@ -61,6 +65,10 @@ app.use('/api/dashboard', dashboardRoute);
 app.use('/api/invoices', invoiceRoute);
 app.use('/api/payments', paymentRoute);
 app.use('/api/customers', customerRoute);
+app.use('/api/articles', articleRoute);
+app.use('/api/gallery', galleryRoute);
+app.use('/api/testimonials', testimonialRoute);
+app.use('/api/settings', settingsRoute);
 
 // 6. Global Error Handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

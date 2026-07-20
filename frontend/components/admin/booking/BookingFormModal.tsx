@@ -11,10 +11,10 @@ interface BookingFormModalProps {
 
 export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: BookingFormModalProps) {
   const [loading, setLoading] = useState(false);
-  const [customers, setCustomers] = useState([]);
-  const [brands, setBrands] = useState([]);
-  const [deviceTypes, setDeviceTypes] = useState([]);
-  const [serviceCategories, setServiceCategories] = useState([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<any[]>([]);
 
   const [formData, setFormData] = useState({
     customerId: '',
@@ -30,11 +30,11 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch Master Data
-      api.get('/customers').then(res => setCustomers(res.data.data));
-      api.get('/brands').then(res => setBrands(res.data.data));
-      api.get('/device-types').then(res => setDeviceTypes(res.data.data));
-      api.get('/service-categories').then(res => setServiceCategories(res.data.data));
+      // Fetch Master Data safely
+      api.get('/customers').then(res => setCustomers(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setCustomers([]));
+      api.get('/brands').then(res => setBrands(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setBrands([]));
+      api.get('/device-types').then(res => setDeviceTypes(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setDeviceTypes([]));
+      api.get('/service-categories').then(res => setServiceCategories(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setServiceCategories([]));
 
       if (booking) {
         setFormData({
@@ -70,9 +70,9 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
       }
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Gagal menyimpan booking');
+      alert(error.response?.data?.message || 'Gagal menyimpan booking');
     } finally {
       setLoading(false);
     }
@@ -98,44 +98,54 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
 
               <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Customer</label>
+                  <label className="block text-sm font-medium text-gray-700">Customer <span className="text-red-500">*</span></label>
                   <select required value={formData.customerId} onChange={e => setFormData({...formData, customerId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Customer...</option>
-                    {customers.map((c: any) => <option key={c.id} value={c.id}>{c.name} - {c.phone}</option>)}
+                    {Array.isArray(customers) && customers.map((c: any) => (
+                      <option key={c.id} value={c.id}>
+                        {c.fullName || c.name || 'Pelanggan'} ({c.phoneNumber || c.phone || '-'})
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Kategori Servis</label>
-                  <select required value={formData.serviceCategoryId} onChange={e => setFormData({...formData, serviceCategoryId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                  <select value={formData.serviceCategoryId} onChange={e => setFormData({...formData, serviceCategoryId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Kategori...</option>
-                    {serviceCategories.map((sc: any) => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                    {Array.isArray(serviceCategories) && serviceCategories.map((sc: any) => (
+                      <option key={sc.id} value={sc.id}>{sc.name}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Tipe Perangkat</label>
-                  <select required value={formData.deviceTypeId} onChange={e => setFormData({...formData, deviceTypeId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                  <select value={formData.deviceTypeId} onChange={e => setFormData({...formData, deviceTypeId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Tipe...</option>
-                    {deviceTypes.map((dt: any) => <option key={dt.id} value={dt.id}>{dt.name}</option>)}
+                    {Array.isArray(deviceTypes) && deviceTypes.map((dt: any) => (
+                      <option key={dt.id} value={dt.id}>{dt.name}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Brand</label>
-                  <select required value={formData.brandId} onChange={e => setFormData({...formData, brandId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
+                  <select value={formData.brandId} onChange={e => setFormData({...formData, brandId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Brand...</option>
-                    {brands.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                    {Array.isArray(brands) && brands.map((b: any) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nama Unit / Model</label>
-                  <input required type="text" value={formData.deviceName} onChange={e => setFormData({...formData, deviceName: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Contoh: MacBook Pro M1" />
+                  <label className="block text-sm font-medium text-gray-700">Nama Unit / Model <span className="text-red-500">*</span></label>
+                  <input required type="text" value={formData.deviceName} onChange={e => setFormData({...formData, deviceName: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Contoh: LED TV 43 Inch / Laptop ASUS" />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Keluhan</label>
+                  <label className="block text-sm font-medium text-gray-700">Keluhan <span className="text-red-500">*</span></label>
                   <textarea required rows={3} value={formData.complaint} onChange={e => setFormData({...formData, complaint: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Jelaskan kendala perangkat secara detail..."></textarea>
                 </div>
 
@@ -157,10 +167,10 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
 
             </div>
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
-              <button type="submit" disabled={loading} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:bg-blue-300">
+              <button type="submit" disabled={loading} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:bg-blue-300 cursor-pointer">
                 {loading ? 'Menyimpan...' : 'Simpan Booking'}
               </button>
-              <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+              <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm cursor-pointer">
                 Batal
               </button>
             </div>

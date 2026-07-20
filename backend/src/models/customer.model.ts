@@ -16,7 +16,7 @@ export class Customer extends Model {
 Customer.init(
   {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    userId: { type: DataTypes.UUID, allowNull: false, unique: true, field: 'user_id' },
+    userId: { type: DataTypes.UUID, allowNull: true, field: 'user_id' },
     fullName: { type: DataTypes.STRING, allowNull: false, field: 'full_name' },
     phoneNumber: { type: DataTypes.STRING, allowNull: false, field: 'phone_number' },
     address: { type: DataTypes.TEXT, allowNull: true },

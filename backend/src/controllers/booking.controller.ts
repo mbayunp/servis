@@ -8,6 +8,7 @@ import DeviceType from '../models/device-type.model.js';
 import ServiceCategory from '../models/service-category.model.js';
 import BookingBefore from '../models/bookingBefore.model.js';
 import BookingAfter from '../models/bookingAfter.model.js';
+import TrackingHistory from '../models/trackingHistory.model.js';
 
 const includeModels = [
   { model: Customer, as: 'customer' },
@@ -16,8 +17,20 @@ const includeModels = [
   { model: DeviceType, as: 'deviceType' },
   { model: ServiceCategory, as: 'serviceCategory' },
   { model: BookingBefore, as: 'beforePhotos' },
-  { model: BookingAfter, as: 'afterPhotos' }
+  { model: BookingAfter, as: 'afterPhotos' },
+  { model: TrackingHistory, as: 'histories' }
 ];
+
+const sanitizeBookingPayload = (body: any) => {
+  const payload = { ...body };
+  const fkKeys = ['customerId', 'technicianId', 'brandId', 'deviceTypeId', 'serviceCategoryId'];
+  fkKeys.forEach(key => {
+    if (payload[key] !== undefined && (!payload[key] || typeof payload[key] !== 'string' || payload[key].trim() === '')) {
+      payload[key] = null;
+    }
+  });
+  return payload;
+};
 
 export const getAll = async (req: Request, res: Response) => {
   try {
@@ -81,48 +94,90 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const bookingNumber = 'SCJ-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random()*1000);
-    const data = await Booking.create({ ...req.body, bookingNumber });
+    const bookingNumber = 'SCJ-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100 + Math.random()*900);
+    const payload = sanitizeBookingPayload(req.body);
+    const data = await Booking.create({ ...payload, bookingNumber });
+    
+    // Automatically record tracking history
+    await TrackingHistory.create({
+      bookingId: data.id,
+      status: 'PENDING',
+      title: 'Booking Dibuat',
+      description: 'Pemesanan perbaikan baru telah terdaftar di sistem.',
+      createdBy: (req as any).user?.id || null
+    });
+
     res.status(201).json({ success: true, data });
   } catch (error: any) { res.status(400).json({ success: false, message: error.message }); }
 };
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const data = await Booking.findByPk((req.params.id as string));
+    const data = await Booking.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    await data.update(req.body);
+    
+    const oldTechId = data.technicianId;
+    const payload = sanitizeBookingPayload(req.body);
+    await data.update(payload);
+
+    // If technician changed, record event
+    if (payload.technicianId && payload.technicianId !== oldTechId) {
+      const tech = await Technician.findByPk(payload.technicianId);
+      await TrackingHistory.create({
+        bookingId: data.id,
+        status: data.status,
+        title: 'Teknisi Ditugaskan',
+        description: tech ? `Perangkat telah ditugaskan kepada teknisi ${tech.name}.` : 'Teknisi baru telah ditugaskan.',
+        createdBy: (req as any).user?.id || null
+      });
+    }
+
+    // If diagnosis/estimatedCost was added/updated
+    if (payload.diagnosis || payload.estimatedCost) {
+      await TrackingHistory.create({
+        bookingId: data.id,
+        status: 'CHECKING',
+        title: 'Diagnosa & Estimasi Disiapkan',
+        description: `Hasil diagnosa: ${payload.diagnosis || 'Sudah diperiksa'}. Estimasi biaya: Rp ${Number(payload.estimatedCost || data.estimatedCost || 0).toLocaleString('id-ID')}`,
+        createdBy: (req as any).user?.id || null
+      });
+    }
+
     res.json({ success: true, data });
   } catch (error: any) { res.status(400).json({ success: false, message: error.message }); }
 };
 
 export const updateStatus = async (req: Request, res: Response) => {
   try {
-    const data = await Booking.findByPk((req.params.id as string));
+    const data = await Booking.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     
     const newStatus = req.body.status;
-    const currentStatus = data.status;
-
-    // Workflow validation
-    const statusOrder = ['Pending', 'Checking', 'Repairing', 'Finished'];
-    const currentIndex = statusOrder.indexOf(currentStatus);
-    const newIndex = statusOrder.indexOf(newStatus);
-
-    if (newStatus === 'Cancelled') {
-      if (currentStatus === 'Finished') {
-        return res.status(400).json({ success: false, message: 'Cannot cancel a finished booking' });
-      }
-    } else if (currentIndex !== -1 && newIndex !== -1) {
-      if (newIndex < currentIndex) {
-        return res.status(400).json({ success: false, message: 'Cannot move status backwards' });
-      }
-      if (newIndex > currentIndex + 1) {
-        return res.status(400).json({ success: false, message: 'Cannot skip status workflow' });
-      }
-    }
-
     await data.update({ status: newStatus });
+
+    // History Titles Mapping
+    const titleMap: Record<string, { title: string; desc: string }> = {
+      'Pending': { title: 'Booking Didaftarkan', desc: 'Menunggu penerimaan dari bengkel' },
+      'Received': { title: 'Barang Diterima', desc: 'Perangkat telah diterima oleh admin di workshop' },
+      'Checking': { title: 'Sedang Pemeriksaan', desc: 'Teknisi sedang membongkar dan memeriksa masalah perangkat' },
+      'Waiting Approval': { title: 'Menunggu Persetujuan Estimasi', desc: 'Estimasi rincian biaya telah dikirimkan ke pelanggan' },
+      'Repairing': { title: 'Proses Perbaikan', desc: 'Teknisi sedang melakukan perbaikan / penggantian sparepart' },
+      'QC': { title: 'Quality Control (QC)', desc: 'Pengujian fungsi dan kualitas setelah perbaikan' },
+      'Finished': { title: 'Servis Selesai', desc: 'Perangkat selesai diperbaiki dan siap diambil' },
+      'Picked Up': { title: 'Barang Sudah Diambil', desc: 'Perangkat telah diserahkan kembali kepada pelanggan' },
+      'Cancelled': { title: 'Dibatalkan', desc: 'Pemesanan perbaikan telah dibatalkan' }
+    };
+
+    const statusInfo = titleMap[newStatus] || { title: `Status: ${newStatus}`, desc: `Status pengerjaan diperbarui menjadi ${newStatus}` };
+
+    await TrackingHistory.create({
+      bookingId: data.id,
+      status: newStatus.toUpperCase().replace(/\s+/g, '_'),
+      title: statusInfo.title,
+      description: statusInfo.desc,
+      createdBy: (req as any).user?.id || null
+    });
+
     res.json({ success: true, data });
   } catch (error: any) { res.status(400).json({ success: false, message: error.message }); }
 };
@@ -146,8 +201,22 @@ export const uploadPhoto = async (req: Request, res: Response) => {
     let result;
     if (type === 'before') {
       result = await BookingBefore.create(photoData);
+      await TrackingHistory.create({
+        bookingId,
+        status: 'CHECKING',
+        title: 'Foto Sebelum Perbaikan Diunggah',
+        description: 'Dokumentasi kondisi perangkat awal sebelum tindakan servis.',
+        createdBy: (req as any).user?.id || null
+      });
     } else {
       result = await BookingAfter.create(photoData);
+      await TrackingHistory.create({
+        bookingId,
+        status: 'QC',
+        title: 'Foto Sesudah Perbaikan Diunggah',
+        description: 'Dokumentasi kondisi fisik perangkat setelah selesai diperbaiki.',
+        createdBy: (req as any).user?.id || null
+      });
     }
 
     res.json({ success: true, data: result, message: 'Photo uploaded successfully' });

@@ -1,304 +1,377 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import axios from 'axios';
 import {
-  FaTv,
-  FaSnowflake,
-  FaWrench,
-  FaCheckCircle,
-  FaTruck,
-  FaMapMarkerAlt,
-  FaWhatsapp,
-  FaEnvelope,
-  FaClock,
-  FaClipboardList,
-  FaArrowRight
+  FaTv, FaSnowflake, FaFan, FaCheckCircle, FaTimesCircle, FaArrowRight, FaWhatsapp, FaInfoCircle
 } from 'react-icons/fa';
-import { MdOutlineLocalLaundryService } from "react-icons/md";
-import { getIconComponent } from '@/components/IconHelper';
-
-interface ServiceDetail {
-  title: string;
-  icon: string;
-  description: string;
-  items: string[];
-}
-
-interface ProcessItem {
-  num?: string;
-  step?: string;
-  title: string;
-  desc: string;
-}
-
-interface AdvantageItem {
-  title: string;
-  desc: string;
-}
-
-interface ProfileData {
-  phone?: string;
-  whatsappUrl?: string;
-  email?: string;
-  operatingHours?: string;
-}
+import { MdOutlineLocalLaundryService, MdSpeaker } from "react-icons/md";
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function ServicesClient() {
-  const [services, setServices] = useState<ServiceDetail[]>([]);
-  const [processes, setProcesses] = useState<ProcessItem[]>([]);
-  const [areas, setAreas] = useState<string[]>([]);
-  const [advantages, setAdvantages] = useState<AdvantageItem[]>([]);
-  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [servicesRes, processesRes, areasRes, advantagesRes, profileRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/service-details`).catch((error: any) => {
-            console.warn("⚠️ Failed to fetch /service-details:", error.message);
-            return { data: [] };
-          }),
-          axios.get(`${API_BASE_URL}/processes`).catch((error: any) => {
-            console.warn("⚠️ Failed to fetch /processes:", error.message);
-            return { data: [] };
-          }),
-          axios.get(`${API_BASE_URL}/service-areas`).catch((error: any) => {
-            console.warn("⚠️ Failed to fetch /service-areas:", error.message);
-            return { data: [] };
-          }),
-          axios.get(`${API_BASE_URL}/advantages`).catch((error: any) => {
-            console.warn("⚠️ Failed to fetch /advantages:", error.message);
-            return { data: [] };
-          }),
-          axios.get(`${API_BASE_URL}/company-profile`).catch((error: any) => {
-            console.warn("⚠️ Failed to fetch /company-profile:", error.message);
-            return { data: null };
-          })
-        ]);
-
-        setServices(servicesRes.data || []);
-        setProcesses(processesRes.data || []);
-        setAreas(areasRes.data || []);
-        setAdvantages(advantagesRes.data || []);
-        setProfile(profileRes.data || null);
-      } catch (err: any) {
-        console.error('Error fetching services page data:', err);
-        setError('Gagal memuat data layanan.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [API_BASE_URL]);
+  const faqs = [
+    { q: "Apakah bisa servis ke rumah?", a: "Ya, untuk jenis perangkat tertentu." },
+    { q: "Apakah harus booking?", a: "Tidak. Anda dapat datang langsung ke lokasi." },
+    { q: "Berapa lama proses servis?", a: "Bergantung pada jenis kerusakan dan ketersediaan sparepart." },
+    { q: "Bagaimana mengetahui status servis?", a: "Melalui halaman Tracking Service menggunakan nomor servis atau QR Code pada nota." },
+    { q: "Apakah semua elektronik diterima?", a: "Kami melayani berbagai elektronik rumah tangga. Namun, beberapa jenis perangkat mungkin memerlukan pemeriksaan terlebih dahulu untuk memastikan kelayakan perbaikan." }
+  ];
 
   return (
-    <div className="bg-gray-50 flex flex-col min-h-screen">
-      {/* 1. HEADER SECTION */}
-      <section className="relative bg-gradient-to-br from-red-600 to-red-800 text-white py-24 overflow-hidden">
+    <div className="bg-gray-50 flex flex-col min-h-screen text-slate-900">
+      {/* 1. HERO SECTION */}
+      <section className="relative bg-gradient-to-br from-red-700 via-red-600 to-black text-white py-24 overflow-hidden">
         {/* Dekorasi Background */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-10 w-64 h-64 bg-red-400 rounded-full blur-3xl"></div>
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-400 rounded-full blur-3xl opacity-50"></div>
+          <div className="absolute bottom-0 left-10 w-64 h-64 bg-red-500 rounded-full blur-3xl opacity-40"></div>
         </div>
 
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 drop-shadow-md">Layanan Servis Elektronik</h1>
-          <p className="text-lg md:text-xl font-light max-w-3xl mx-auto opacity-95 leading-relaxed">
-            Menyediakan layanan perbaikan berbagai perangkat elektronik rumah tangga dengan dukungan teknisi berpengalaman sejak tahun 1993.
+        <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight leading-tight">
+            Layanan Service Elektronik Profesional
+          </h1>
+          <p className="text-lg md:text-xl font-light mb-10 text-red-50 leading-relaxed">
+            Kami melayani perbaikan berbagai perangkat elektronik rumah tangga dengan teknisi berpengalaman, proses yang transparan, serta didukung garansi layanan untuk memberikan kenyamanan dan kepercayaan kepada setiap pelanggan.
           </p>
-        </div>
-      </section>
-
-      {/* Error Alert */}
-      {error && (
-        <div className="container mx-auto px-6 mt-8">
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded text-red-800">
-            <p className="font-bold">Perhatian</p>
-            <p>{error} Menggunakan data lokal cadangan.</p>
-          </div>
-        </div>
-      )}
-
-      {/* 2. INTRO LAYANAN */}
-      <section className="py-16 bg-white border-b border-gray-100">
-        <div className="container mx-auto px-6 max-w-4xl text-center">
-          <p className="text-xl text-gray-700 leading-relaxed mb-8">
-            Kami melayani perbaikan perangkat elektronik dengan proses diagnosa yang teliti sehingga kerusakan dapat diketahui dengan lebih akurat sebelum proses perbaikan dilakukan.
-          </p>
-          <div className="inline-flex items-center justify-center bg-red-50 text-red-700 px-8 py-4 rounded-full font-bold shadow-sm hover:bg-red-100 hover:shadow-md transition-all duration-300 cursor-default">
-            <FaTruck className="mr-3 text-2xl" />
-            Tersedia Layanan Servis ke Rumah (Home Service)
-          </div>
-        </div>
-      </section>
-
-      {/* 3. DETAIL JENIS LAYANAN */}
-      <section className="py-24 container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Jenis Layanan Servis</h2>
-          <p className="text-gray-600 mt-4 text-lg">Solusi tepat untuk berbagai kerusakan perangkat Anda.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {loading ? (
-            <p className="col-span-full text-center text-gray-500 py-10">Loading...</p>
-          ) : services.length === 0 ? (
-            <p className="col-span-full text-center text-gray-400 py-10">Tidak ada data jenis layanan.</p>
-          ) : (
-            services.map((service, index) => (
-              <div key={index} className="bg-white p-10 rounded-3xl shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group">
-                <div className="flex items-center mb-6">
-                  <div className="bg-red-50 p-4 rounded-2xl text-red-600 mr-5 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300 flex-shrink-0">
-                    {getIconComponent(service.icon)}
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-800">{service.title}</h3>
-                </div>
-                <p className="text-gray-600 mb-6 leading-relaxed text-lg">{service.description}</p>
-                <ul className="space-y-3">
-                  {service.items?.map((item, i) => (
-                    <li key={i} className="flex items-start text-gray-700">
-                      <FaCheckCircle className="text-red-500 mt-1.5 mr-3 flex-shrink-0 text-lg group-hover:scale-110 transition-transform" /> {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
-
-      {/* 4. LAYANAN PANGGILAN (HOME SERVICE) */}
-      <section className="py-20 bg-red-700 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
-
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
-          <div className="md:w-2/3">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 flex items-center">
-              <FaTruck className="mr-5 text-red-300" /> Layanan Servis ke Rumah
-            </h2>
-            <p className="text-red-100 text-xl leading-relaxed mb-4">
-              Punya perangkat elektronik berukuran besar yang sulit dipindahkan seperti <strong>TV besar, Kulkas, Mesin Cuci, atau AC</strong>?
-            </p>
-            <p className="text-red-100 text-lg">
-              Tidak perlu repot! Teknisi kami akan datang langsung ke lokasi Anda untuk melakukan pemeriksaan dan perbaikan perangkat elektronik di tempat.
-            </p>
-          </div>
-          <div className="md:w-1/3 text-center md:text-right">
-            <Link href="/booking" className="inline-flex items-center justify-center bg-white text-red-700 font-bold py-4 px-8 rounded-full shadow-xl hover:bg-gray-50 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 group">
-              Pesan Layanan ke Rumah <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <Link href="/booking" className="bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg shadow-red-900/50 hover:bg-red-500 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 border border-red-500">
+              <span className="text-xl">🔴</span> Booking Service
+            </Link>
+            <Link href="/tracking" className="bg-black border border-gray-800 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-gray-900 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+              <span className="text-xl">⚫</span> Tracking Service
             </Link>
           </div>
+
+          {/* Statistik Singkat Card */}
+          <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div>
+                <div className="text-4xl font-extrabold mb-1">35+</div>
+                <div className="text-red-200 text-sm font-medium uppercase tracking-wider">Tahun Pengalaman</div>
+              </div>
+              <div>
+                <div className="text-4xl font-extrabold mb-1">2</div>
+                <div className="text-red-200 text-sm font-medium uppercase tracking-wider">Teknisi Berpengalaman</div>
+              </div>
+              <div>
+                <div className="text-4xl font-extrabold mb-1">1–3 <span className="text-2xl">Bulan</span></div>
+                <div className="text-red-200 text-sm font-medium uppercase tracking-wider">Garansi Servis</div>
+              </div>
+              <div>
+                <div className="text-4xl font-extrabold mb-1">100%</div>
+                <div className="text-red-200 text-sm font-medium uppercase tracking-wider">Estimasi Transparan</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 5. PROSES SERVIS */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-16">Proses Layanan Servis</h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative">
-            {/* Garis penghubung untuk desktop */}
-            {!loading && processes.length > 0 && (
-              <div className="hidden md:block absolute top-10 left-[10%] right-[10%] h-1 bg-red-100 z-0 rounded-full"></div>
-            )}
+      {/* 2. LAYANAN UTAMA */}
+      <section className="py-24 bg-white relative">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4 tracking-tight">Layanan Utama Kami</h2>
+            <div className="w-24 h-1 bg-red-600 mx-auto rounded-full mb-6"></div>
+          </div>
 
-            {loading ? (
-              <p className="col-span-full text-center text-gray-500 py-10">Loading...</p>
-            ) : processes.length === 0 ? (
-              <p className="col-span-full text-center text-gray-400 py-10">Tidak ada data proses.</p>
-            ) : (
-              processes.map((step, index) => (
-                <div key={index} className="flex flex-col items-center group cursor-default z-10">
-                  <div className="w-20 h-20 rounded-full bg-white border-4 border-red-100 text-red-600 flex items-center justify-center text-3xl font-extrabold mb-6 shadow-md group-hover:bg-red-600 group-hover:text-white group-hover:border-red-600 transition-all duration-300">
-                    {step.num || step.step || (index + 1)}
-                  </div>
-                  <h4 className="font-bold text-gray-800 mb-3 text-lg">{step.title}</h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">{step.desc}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+            {/* TV */}
+            <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 hover:shadow-xl hover:border-red-200 transition-all duration-300">
+              <div className="flex items-center gap-6 mb-8 border-b border-gray-200 pb-6">
+                <div className="w-16 h-16 bg-red-600 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  <FaTv />
                 </div>
-              ))
-            )}
+                <h3 className="text-2xl font-bold text-black">Service Televisi</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaCheckCircle/> Jenis TV</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• LED</li><li>• LCD</li><li>• Smart TV</li><li>• Android TV</li><li>• Plasma</li><li>• CRT</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaTimesCircle className="text-red-500"/> Kerusakan</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• Tidak menyala</li><li>• Layar gelap</li><li>• Tidak ada suara</li><li>• Gambar bergaris</li><li>• Warna tidak normal</li><li>• Mati total</li><li>• Restart terus</li><li>• HDMI tidak berfungsi</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Kulkas */}
+            <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 hover:shadow-xl hover:border-red-200 transition-all duration-300">
+              <div className="flex items-center gap-6 mb-8 border-b border-gray-200 pb-6">
+                <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  <FaSnowflake />
+                </div>
+                <h3 className="text-2xl font-bold text-black">Service Kulkas</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaCheckCircle/> Melayani</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• 1 Pintu</li><li>• 2 Pintu</li><li>• Showcase</li><li>• Freezer</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaTimesCircle className="text-red-500"/> Kerusakan</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• Tidak dingin</li><li>• Bocor</li><li>• Mesin mati</li><li>• Bunga es berlebihan</li><li>• Kompresor bermasalah</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Mesin Cuci */}
+            <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 hover:shadow-xl hover:border-red-200 transition-all duration-300">
+              <div className="flex items-center gap-6 mb-8 border-b border-gray-200 pb-6">
+                <div className="w-16 h-16 bg-red-600 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  <MdOutlineLocalLaundryService />
+                </div>
+                <h3 className="text-2xl font-bold text-black">Service Mesin Cuci</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaCheckCircle/> Melayani</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• Top Loading</li><li>• Front Loading</li><li>• Semi Otomatis</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaTimesCircle className="text-red-500"/> Kerusakan</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• Tidak berputar</li><li>• Air tidak keluar</li><li>• Tidak membuang air</li><li>• Mesin mati</li><li>• Error panel</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Kipas Angin */}
+            <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 hover:shadow-xl hover:border-red-200 transition-all duration-300">
+              <div className="flex items-center gap-6 mb-8 border-b border-gray-200 pb-6">
+                <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  <FaFan />
+                </div>
+                <h3 className="text-2xl font-bold text-black">Service Kipas Angin</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaCheckCircle/> Melayani</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• Berdiri</li><li>• Dinding</li><li>• Meja</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-600 mb-3 flex items-center gap-2"><FaTimesCircle className="text-red-500"/> Kerusakan</h4>
+                  <ul className="space-y-2 text-gray-700">
+                    <li>• Mati</li><li>• Tidak berputar</li><li>• Suara kasar</li><li>• Putaran lemah</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Peralatan Elektronik Lainnya */}
+            <div className="bg-gray-50 rounded-[2rem] p-8 border border-gray-100 hover:shadow-xl hover:border-red-200 transition-all duration-300 md:col-span-2">
+              <div className="flex items-center gap-6 mb-8 border-b border-gray-200 pb-6">
+                <div className="w-16 h-16 bg-red-600 text-white rounded-2xl flex items-center justify-center text-3xl shadow-lg">
+                  <MdSpeaker />
+                </div>
+                <h3 className="text-2xl font-bold text-black">Peralatan Elektronik Lainnya</h3>
+              </div>
+              <div>
+                <h4 className="font-bold text-red-600 mb-4 flex items-center gap-2"><FaCheckCircle/> Misalnya:</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-gray-700">
+                  <ul className="space-y-2"><li>• Speaker aktif</li><li>• Amplifier</li></ul>
+                  <ul className="space-y-2"><li>• DVD Player</li><li>• Receiver</li></ul>
+                  <ul className="space-y-2"><li>• Dispenser</li><li>• Blender</li></ul>
+                  <ul className="space-y-2"><li>• Magic Com</li><li>• Setrika</li><li>• Pompa air</li></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-10 max-w-4xl mx-auto bg-red-50 border border-red-100 p-6 rounded-2xl flex items-start gap-4">
+            <FaInfoCircle className="text-red-600 text-2xl mt-1 flex-shrink-0" />
+            <p className="text-gray-700">
+              <strong>Catatan:</strong> Jenis perangkat tertentu akan diperiksa terlebih dahulu untuk memastikan ketersediaan suku cadang dan kelayakan perbaikan.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* 6. AREA & KEUNGGULAN */}
-      <section className="py-24 bg-red-50 border-t border-red-100">
-        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16">
-          {/* Area Layanan */}
-          <div>
-            <div className="flex items-center mb-8">
-              <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-2xl mr-4 shadow-sm flex-shrink-0">
-                <FaMapMarkerAlt />
-              </div>
-              <h2 className="text-3xl font-bold text-gray-800">Area Layanan</h2>
-            </div>
-            <p className="text-gray-600 mb-6 text-lg">Servis Cianjur melayani pelanggan yang berada di wilayah:</p>
-            {loading ? (
-              <p className="text-gray-500">Loading...</p>
-            ) : areas.length === 0 ? (
-              <p className="text-gray-400">Tidak ada data area.</p>
-            ) : (
-              <ul className="space-y-4 mb-6">
-                {areas.map((area, i) => (
-                  <li key={i} className="flex items-center text-gray-700 bg-white p-4 rounded-xl border border-red-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                    <div className="w-3 h-3 bg-red-500 rounded-full mr-4 shadow-sm"></div>
-                    <span className="font-medium text-lg">{area}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+      {/* 3. KENAPA MEMILIH SERVICE CIANJUR? */}
+      <section className="py-24 bg-gray-50 border-t border-gray-200">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4 tracking-tight">Kenapa Memilih Service Cianjur?</h2>
           </div>
-
-          {/* Keunggulan */}
-          <div>
-            <div className="flex items-center mb-8">
-              <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-2xl mr-4 shadow-sm flex-shrink-0">
-                <FaClipboardList />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              { title: "Teknisi Berpengalaman", desc: "Didukung teknisi yang telah menangani berbagai jenis kerusakan elektronik selama bertahun-tahun." },
+              { title: "Garansi Servis", desc: "Memberikan garansi sesuai jenis perbaikan sebagai bentuk komitmen terhadap kualitas pekerjaan." },
+              { title: "Tracking Online", desc: "Pantau status pengerjaan melalui website tanpa harus datang ke lokasi." },
+              { title: "Harga Transparan", desc: "Estimasi biaya diinformasikan sebelum pengerjaan dilakukan." },
+              { title: "Panggilan ke Rumah", desc: "Layanan servis di lokasi pelanggan untuk perangkat tertentu." },
+              { title: "Sparepart Berkualitas", desc: "Menggunakan suku cadang yang sesuai dengan kebutuhan perbaikan." }
+            ].map((item, i) => (
+              <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center font-bold text-xl mb-6">
+                  {i + 1}
+                </div>
+                <h4 className="text-xl font-bold text-black mb-3">{item.title}</h4>
+                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
               </div>
-              <h2 className="text-3xl font-bold text-gray-800">Keunggulan Layanan</h2>
-            </div>
-            {loading ? (
-              <p className="text-gray-500">Loading...</p>
-            ) : advantages.length === 0 ? (
-              <p className="text-gray-400">Tidak ada data keunggulan.</p>
-            ) : (
-              <div className="space-y-5">
-                {advantages.map((item, i) => (
-                  <div key={i} className="bg-white p-5 rounded-xl border-l-4 border-red-500 shadow-sm hover:shadow-md transition-shadow">
-                    <h4 className="font-bold text-gray-800 text-lg mb-1">{item.title}</h4>
-                    <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. ALUR SERVICE */}
+      <section className="py-24 bg-white overflow-hidden relative">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4 tracking-tight">Alur Service</h2>
+            <p className="text-gray-600 text-lg">Proses transparan dari awal hingga perangkat Anda kembali normal.</p>
+          </div>
+          
+          <div className="relative">
+            <div className="hidden lg:block absolute top-12 left-10 right-10 h-1 bg-red-100 rounded-full"></div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-6 gap-8">
+              {[
+                { title: "Booking atau Datang Langsung", desc: "Pelanggan membawa perangkat atau menghubungi kami." },
+                { title: "Pemeriksaan Awal", desc: "Teknisi melakukan pengecekan kondisi perangkat." },
+                { title: "Estimasi Biaya", desc: "Pelanggan mendapatkan informasi biaya dan waktu pengerjaan." },
+                { title: "Proses Perbaikan", desc: "Perangkat diperbaiki oleh teknisi." },
+                { title: "Quality Check", desc: "Dilakukan pengujian sebelum diserahkan." },
+                { title: "Selesai & Garansi", desc: "Perangkat dapat diambil dan pelanggan menerima bukti servis beserta garansi." }
+              ].map((step, i) => (
+                <div key={i} className="relative z-10 flex flex-col items-center text-center group">
+                  <div className="w-24 h-24 bg-white border-4 border-red-600 text-red-600 rounded-full flex items-center justify-center text-3xl font-extrabold mb-6 shadow-xl group-hover:bg-red-600 group-hover:text-white transition-all duration-300">
+                    {i + 1}
                   </div>
-                ))}
-              </div>
-            )}
+                  <h4 className="font-bold text-black mb-2 px-2">{step.title}</h4>
+                  <p className="text-sm text-gray-600">{step.desc}</p>
+                  
+                  {/* Panah bawah untuk mobile */}
+                  {i < 5 && (
+                    <div className="lg:hidden mt-6 mb-2 text-red-300 text-2xl">
+                      ↓
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 7. CTA / KONTAK */}
-      <section className="py-24 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Butuh Layanan Servis Sekarang?</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto mb-10 text-lg leading-relaxed">
-            Jika perangkat elektronik Anda mengalami kerusakan, jangan ragu untuk menghubungi Servis Cianjur. Tim teknisi kami siap memberikan solusi terbaik.
-          </p>
-          <div className="flex flex-wrap justify-center gap-6">
-            <a href={profile?.whatsappUrl || "https://wa.me/62812xxxxxxx"} target="_blank" rel="noopener noreferrer" className="flex items-center bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-green-600 hover:-translate-y-1 transition-all duration-300">
-              <FaWhatsapp className="text-3xl mr-3" /> Hubungi via WhatsApp
-            </a>
-            <div className="flex items-center bg-gray-50 text-gray-800 px-8 py-4 rounded-full font-semibold border border-gray-200">
-              <FaClock className="text-2xl text-orange-500 mr-3" /> {profile?.operatingHours || 'Senin – Sabtu (08.00 – 17.00)'}
+      {/* 5. ESTIMASI WAKTU & GARANSI */}
+      <section className="py-24 bg-black text-white relative">
+        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-red-900 via-black to-black pointer-events-none"></div>
+        <div className="container mx-auto px-6 relative z-10 max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            
+            {/* Tabel Estimasi */}
+            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-8 md:p-10 backdrop-blur-md">
+              <h3 className="text-2xl font-bold text-white mb-8 border-b-2 border-red-600 inline-block pb-2">Estimasi Waktu</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/20 text-gray-400 text-sm uppercase tracking-wider">
+                      <th className="pb-4 font-semibold">Jenis Pengerjaan</th>
+                      <th className="pb-4 font-semibold text-right">Estimasi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10 text-gray-200">
+                    <tr><td className="py-4 font-medium">Pemeriksaan Awal</td><td className="py-4 text-right">15–30 menit</td></tr>
+                    <tr><td className="py-4 font-medium">Kerusakan Ringan</td><td className="py-4 text-right">Hari yang sama*</td></tr>
+                    <tr><td className="py-4 font-medium">Kerusakan Sedang</td><td className="py-4 text-right">1–3 hari</td></tr>
+                    <tr><td className="py-4 font-medium">Menunggu Sparepart</td><td className="py-4 text-right">Menyesuaikan ketersediaan</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-6 text-sm text-gray-400 italic">
+                *Estimasi dapat berubah tergantung tingkat kerusakan dan ketersediaan suku cadang.
+              </p>
             </div>
-            <a href={`mailto:${profile?.email || 'serviscianjur@email.com'}`} className="flex items-center bg-gray-50 text-gray-800 px-8 py-4 rounded-full font-semibold border border-gray-200 hover:bg-gray-100 transition-colors">
-              <FaEnvelope className="text-2xl text-red-500 mr-3" /> Email Kami
+
+            {/* Card Garansi */}
+            <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-[2rem] p-8 md:p-10 shadow-2xl border border-red-500 flex flex-col justify-center">
+              <h3 className="text-2xl font-bold text-white mb-6">Garansi Layanan</h3>
+              <p className="text-red-100 mb-6 text-lg">
+                Kami memberikan garansi untuk setiap pekerjaan.
+              </p>
+              
+              <div className="mb-6">
+                <h4 className="font-bold text-white mb-3">Garansi meliputi:</h4>
+                <ul className="space-y-2 text-red-50">
+                  <li className="flex items-center gap-3"><FaCheckCircle/> Hasil pengerjaan</li>
+                  <li className="flex items-center gap-3"><FaCheckCircle/> Komponen yang diganti (sesuai ketentuan)</li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-bold text-white mb-3">Garansi tidak berlaku apabila:</h4>
+                <ul className="space-y-2 text-red-200 text-sm">
+                  <li className="flex items-center gap-3"><FaTimesCircle/> Barang jatuh</li>
+                  <li className="flex items-center gap-3"><FaTimesCircle/> Terkena air</li>
+                  <li className="flex items-center gap-3"><FaTimesCircle/> Dibongkar pihak lain</li>
+                  <li className="flex items-center gap-3"><FaTimesCircle/> Kerusakan berbeda</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FAQ */}
+      <section className="py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-6 max-w-3xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4 tracking-tight">FAQ (Tanya Jawab)</h2>
+          </div>
+          
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <div key={i} className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50 transition-all duration-300">
+                <button 
+                  onClick={() => toggleFaq(i)}
+                  className="w-full text-left px-6 py-5 flex items-center justify-between font-bold text-gray-800 hover:text-red-600 focus:outline-none"
+                >
+                  <span className="pr-4">{faq.q}</span>
+                  {openFaq === i ? <ChevronUp className="text-red-600 flex-shrink-0" /> : <ChevronDown className="text-gray-400 flex-shrink-0" />}
+                </button>
+                <div className={`px-6 overflow-hidden transition-all duration-300 ${openFaq === i ? 'pb-5 max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-gray-600 leading-relaxed border-t border-gray-200 pt-4">{faq.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. CTA PENUTUP */}
+      <section className="py-24 bg-red-50 text-center border-t border-red-100">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-6 tracking-tight">Perangkat Elektronik Bermasalah?</h2>
+          <p className="text-xl text-gray-700 mb-12">
+            Jangan terburu-buru mengganti dengan yang baru. Banyak kerusakan dapat diperbaiki secara efisien oleh teknisi kami.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="/booking" className="bg-red-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-red-700 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 border border-red-500">
+              <span className="text-xl">🔴</span> Booking Service
+            </Link>
+            <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="bg-black text-white font-bold py-4 px-8 rounded-full shadow-lg hover:bg-gray-800 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 border border-gray-800">
+              <span className="text-xl">⚫</span> Hubungi WhatsApp
             </a>
           </div>
         </div>

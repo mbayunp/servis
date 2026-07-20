@@ -45,7 +45,7 @@ async function runTests() {
   // 1. Auth Login
   const loginRes = await testEndpoint('Login', 'POST', '/auth/login', {
     email: 'admin@serviscianjur.com',
-    password: 'password123'
+    password: 'admin123'
   });
   
   if (loginRes && loginRes.data.accessToken) {

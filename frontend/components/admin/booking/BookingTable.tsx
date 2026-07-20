@@ -79,8 +79,8 @@ export function BookingTable({
                 <div className="text-xs text-gray-500">{new Date(booking.createdAt).toLocaleDateString('id-ID')}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{booking.customer?.name || '-'}</div>
-                <div className="text-xs text-gray-500">{booking.customer?.phone || '-'}</div>
+                <div className="text-sm text-gray-900">{booking.customer?.fullName || booking.customer?.name || '-'}</div>
+                <div className="text-xs text-gray-500">{booking.customer?.phoneNumber || booking.customer?.phone || '-'}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{booking.brand?.name} {booking.deviceName}</div>

@@ -10,11 +10,16 @@ import Customer from './customer.model.js';
 import Booking from './booking.model.js';
 import BookingBefore from './bookingBefore.model.js';
 import BookingAfter from './bookingAfter.model.js';
+import TrackingHistory from './trackingHistory.model.js';
 
 import Invoice from './invoice.model.js';
 import Payment from './payment.model.js';
 
 export const setupAssociations = () => {
+  // Booking -> TrackingHistory
+  Booking.hasMany(TrackingHistory, { foreignKey: 'bookingId', as: 'histories' });
+  TrackingHistory.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
+
   // Booking -> Invoice
   Booking.hasMany(Invoice, { foreignKey: 'bookingId', as: 'invoices' });
   Invoice.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
@@ -72,6 +77,6 @@ export {
   Customer,
   Booking,
   BookingBefore,
-  BookingAfter
+  BookingAfter,
+  TrackingHistory
 };
-

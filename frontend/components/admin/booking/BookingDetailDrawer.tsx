@@ -52,11 +52,11 @@ export function BookingDetailDrawer({ isOpen, onClose, booking }: BookingDetailD
                     <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                       <div className="sm:col-span-1">
                         <dt className="text-sm font-medium text-gray-500">Nama Lengkap</dt>
-                        <dd className="mt-1 text-sm text-gray-900">{booking.customer?.name || '-'}</dd>
+                        <dd className="mt-1 text-sm text-gray-900">{booking.customer?.fullName || booking.customer?.name || '-'}</dd>
                       </div>
                       <div className="sm:col-span-1">
                         <dt className="text-sm font-medium text-gray-500">No. HP / Telepon</dt>
-                        <dd className="mt-1 text-sm text-gray-900">{booking.customer?.phone || '-'}</dd>
+                        <dd className="mt-1 text-sm text-gray-900">{booking.customer?.phoneNumber || booking.customer?.phone || '-'}</dd>
                       </div>
                       <div className="sm:col-span-2">
                         <dt className="text-sm font-medium text-gray-500">Alamat</dt>

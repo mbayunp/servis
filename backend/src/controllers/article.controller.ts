@@ -1,17 +1,9 @@
 import { Request, Response } from 'express';
-import Customer from '../models/customer.model.js';
-
-const sanitizePayload = (body: any) => {
-  const payload = { ...body };
-  if (!payload.userId || typeof payload.userId !== 'string' || payload.userId.trim() === '') {
-    payload.userId = null;
-  }
-  return payload;
-};
+import Article from '../models/article.model.js';
 
 export const getAll = async (_req: Request, res: Response) => {
   try {
-    const data = await Customer.findAll({ order: [['createdAt', 'DESC']] });
+    const data = await Article.findAll({ order: [['createdAt', 'DESC']] });
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -20,7 +12,7 @@ export const getAll = async (_req: Request, res: Response) => {
 
 export const getById = async (req: Request, res: Response) => {
   try {
-    const data = await Customer.findByPk(req.params.id as string);
+    const data = await Article.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data });
   } catch (error: any) {
@@ -30,8 +22,8 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const payload = sanitizePayload(req.body);
-    const data = await Customer.create(payload);
+    const slug = req.body.title ? req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : `article-${Date.now()}`;
+    const data = await Article.create({ ...req.body, slug });
     res.status(201).json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -40,11 +32,9 @@ export const create = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   try {
-    const data = await Customer.findByPk(req.params.id as string);
+    const data = await Article.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    
-    const payload = sanitizePayload(req.body);
-    await data.update(payload);
+    await data.update(req.body);
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -53,10 +43,10 @@ export const update = async (req: Request, res: Response) => {
 
 export const remove = async (req: Request, res: Response) => {
   try {
-    const data = await Customer.findByPk(req.params.id as string);
+    const data = await Article.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     await data.destroy();
-    res.json({ success: true, message: 'Customer deleted successfully' });
+    res.json({ success: true, message: 'Deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
