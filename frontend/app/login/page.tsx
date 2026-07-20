@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaWrench, FaEnvelope, FaLock, FaArrowRight } from 'react-icons/fa';
 import api from '../../lib/axios';
 
@@ -28,7 +29,7 @@ export default function LoginPage() {
       if (data.data.accessToken && data.data.refreshToken) {
         localStorage.setItem('accessToken', data.data.accessToken);
         localStorage.setItem('refreshToken', data.data.refreshToken);
-        
+
         // Redirect to admin
         router.push('/admin');
       } else {
@@ -49,12 +50,19 @@ export default function LoginPage() {
 
       <div className="max-w-md w-full space-y-8 p-10 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 relative z-10">
         <div className="text-center">
-          {/* Dummy Logo */}
-          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto shadow-md border-2 border-red-500/10 mb-4 transition-transform hover:scale-105 duration-300">
-            <FaWrench />
+          {/* Logo Perusahaan */}
+          <div className="flex justify-center mb-4 transition-transform hover:scale-105 duration-300">
+            <Image
+              src="/logo.png"
+              alt="Service Cianjur Logo"
+              width={120}
+              height={120}
+              className="h-16 w-auto object-contain"
+              priority
+            />
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">
-            Servis<span className="text-red-600">Cianjur</span>
+            Servis<span className="text-red-600"> Cianjur</span>
           </h2>
           <p className="mt-2 text-sm font-medium text-gray-500">
             Portal Administrasi & Teknisi
