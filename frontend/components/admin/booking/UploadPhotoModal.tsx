@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { X, Camera } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import api from '../../../lib/axios';
 
 interface UploadPhotoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  booking: any;
+  booking: Record<string, unknown> | null;
   onSuccess: () => void;
 }
 
@@ -59,13 +59,13 @@ export function UploadPhotoModal({ isOpen, onClose, booking, onSuccess }: Upload
           <form onSubmit={handleSubmit}>
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 sm:mx-0 sm:h-10 sm:w-10">
+                <div className="mx-auto shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 sm:mx-0 sm:h-10 sm:w-10">
                   <Camera className="h-6 w-6 text-teal-600" aria-hidden="true" />
                 </div>
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                   <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Upload Foto Perangkat</h3>
                   <div className="mt-2 text-sm text-gray-500 mb-4">
-                    Booking: <span className="font-semibold">{booking?.bookingNumber || '-'}</span>
+                    Booking: <span className="font-semibold">{String(booking?.bookingNumber || '-')}</span>
                   </div>
                   
                   <div className="space-y-4">

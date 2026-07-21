@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Search, Filter, RefreshCw } from 'lucide-react';
+import { Plus, Search, RefreshCw } from 'lucide-react';
 import api from '../../../lib/axios';
 import { BookingTable } from '../../../components/admin/booking/BookingTable';
 import { BookingDetailDrawer } from '../../../components/admin/booking/BookingDetailDrawer';
@@ -26,7 +26,7 @@ export default function AdminBookingPage() {
   const [technicians, setTechnicians] = useState([]);
   
   // Modals state
-  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Record<string, unknown> | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isAssignOpen, setIsAssignOpen] = useState(false);
@@ -98,7 +98,7 @@ export default function AdminBookingPage() {
 
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-lg shadow border border-gray-100 flex flex-col sm:flex-row gap-4 items-end flex-wrap">
-        <form onSubmit={handleSearch} className="flex-1 min-w-[200px]">
+        <form onSubmit={handleSearch} className="flex-1 min-w-50">
           <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">Pencarian</label>
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -142,7 +142,7 @@ export default function AdminBookingPage() {
             onChange={(e) => { setTechnicianFilter(e.target.value); setPage(1); }}
           >
             <option value="">Semua Teknisi</option>
-            {technicians.map((t: any) => (
+            {technicians.map((t: { id: string | number, name: string }) => (
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}
           </select>

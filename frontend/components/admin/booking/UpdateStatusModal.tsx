@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import api from '../../../lib/axios';
 
 interface UpdateStatusModalProps {
   isOpen: boolean;
   onClose: () => void;
-  booking: any;
+  booking: Record<string, unknown> | null;
   onSuccess: () => void;
 }
 
@@ -15,11 +15,11 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
 
   useEffect(() => {
     if (isOpen && booking) {
-      setStatus(booking?.status || 'Pending');
+      setStatus(String(booking?.status || 'Pending'));
     }
   }, [isOpen, booking]);
 
-  if (!isOpen || !booking) return null;
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +54,7 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                   <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Ubah Status Booking</h3>
                   <div className="mt-2 text-sm text-gray-500 mb-4">
-                    Booking: <span className="font-semibold">{booking?.bookingNumber || '-'}</span>
+                    Booking: <span className="font-semibold">{String(booking?.bookingNumber || '-')}</span>
                   </div>
                   
                   <div>

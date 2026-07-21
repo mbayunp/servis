@@ -26,7 +26,7 @@ export default function AdminLayout({
         
         await api.get('/auth/me');
         setIsAuthenticated(true);
-      } catch (error) {
+      } catch {
         if (!localStorage.getItem('accessToken')) {
           router.push('/login');
         }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Wrench, CheckCircle, Clock, MapPin, Phone, Mail, 
-  ChevronDown, ChevronUp, Image as ImageIcon, ShieldCheck, 
+  ChevronDown, ChevronUp, ShieldCheck, 
   ThumbsUp, Truck, PenTool, Zap, User, HelpCircle, Loader2, Search
 } from 'lucide-react';
 import api from '../../lib/axios';
@@ -18,9 +18,9 @@ const FAQS = [
 ];
 
 export default function BookingPage() {
-  const [brands, setBrands] = useState<any[]>([]);
-  const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
-  const [serviceCategories, setServiceCategories] = useState<any[]>([]);
+  const [brands, setBrands] = useState<Array<{ id: string | number, name: string }>>([]);
+  const [deviceTypes, setDeviceTypes] = useState<Array<{ id: string | number, name: string }>>([]);
+  const [serviceCategories, setServiceCategories] = useState<Array<{ id: string | number, name: string }>>([]);
 
   useEffect(() => {
     const fetchMasterData = async () => {
@@ -104,8 +104,9 @@ export default function BookingPage() {
           deviceTypeId: "", brandId: "", serviceCategoryId: "", deviceName: "", serialNumber: "", accessories: "", complaint: "", tnc: false
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch (err: any) {
-        setSubmitError(err.response?.data?.message || 'Gagal mengirim booking. Silakan coba lagi.');
+      } catch (err: unknown) {
+        const errorObj = err as { response?: { data?: { message?: string } } };
+        setSubmitError(errorObj.response?.data?.message || 'Gagal mengirim booking. Silakan coba lagi.');
       } finally {
         setLoading(false);
       }
@@ -381,9 +382,9 @@ export default function BookingPage() {
                 >
                   <span className="font-semibold text-gray-900 pr-4">{faq.q}</span>
                   {openFaq === index ? (
-                    <ChevronUp className="w-5 h-5 text-red-600 flex-shrink-0" />
+                    <ChevronUp className="w-5 h-5 text-red-600 shrink-0" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    <ChevronDown className="w-5 h-5 text-gray-400 shrink-0" />
                   )}
                 </button>
                 <div className={`px-6 overflow-hidden transition-all duration-300 ease-in-out ${openFaq === index ? "max-h-40 pb-5 opacity-100" : "max-h-0 opacity-0"}`}>
@@ -397,7 +398,7 @@ export default function BookingPage() {
 
       {/* 4. CTA */}
       <section className="py-20 bg-red-700 text-white px-6 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white to-transparent"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-3xl font-bold mb-6">Masih Bingung?</h2>
           <p className="text-red-100 mb-10 text-lg max-w-2xl mx-auto">

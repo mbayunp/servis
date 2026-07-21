@@ -2,19 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import api from '../../../lib/axios';
 
+interface MasterData {
+  id: string | number;
+  name?: string;
+  fullName?: string;
+  phone?: string;
+  phoneNumber?: string;
+}
+
 interface BookingFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  booking?: any;
+  booking?: Record<string, unknown> | null;
   onSuccess: () => void;
 }
 
 export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: BookingFormModalProps) {
   const [loading, setLoading] = useState(false);
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
-  const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
-  const [serviceCategories, setServiceCategories] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<MasterData[]>([]);
+  const [brands, setBrands] = useState<MasterData[]>([]);
+  const [deviceTypes, setDeviceTypes] = useState<MasterData[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<MasterData[]>([]);
 
   const defaultFormData = {
     customerId: '',
@@ -41,21 +49,22 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
 
       if (booking?.id) {
         setFormData({
-          customerId: booking?.customerId || '',
-          brandId: booking?.brandId || '',
-          deviceTypeId: booking?.deviceTypeId || '',
-          serviceCategoryId: booking?.serviceCategoryId || '',
-          deviceName: booking?.deviceName || '',
-          serialNumber: booking?.serialNumber || '',
-          accessories: booking?.accessories || '',
-          complaint: booking?.complaint || '',
-          isHomeService: Boolean(booking?.isHomeService),
-          priority: booking?.priority || 'NORMAL'
+          customerId: typeof booking.customerId === 'string' ? booking.customerId : '',
+          brandId: typeof booking.brandId === 'string' ? booking.brandId : '',
+          deviceTypeId: typeof booking.deviceTypeId === 'string' ? booking.deviceTypeId : '',
+          serviceCategoryId: typeof booking.serviceCategoryId === 'string' ? booking.serviceCategoryId : '',
+          deviceName: typeof booking.deviceName === 'string' ? booking.deviceName : '',
+          serialNumber: typeof booking.serialNumber === 'string' ? booking.serialNumber : '',
+          accessories: typeof booking.accessories === 'string' ? booking.accessories : '',
+          complaint: typeof booking.complaint === 'string' ? booking.complaint : '',
+          isHomeService: Boolean(booking.isHomeService),
+          priority: typeof booking.priority === 'string' ? booking.priority : 'NORMAL'
         });
       } else {
         setFormData(defaultFormData);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, booking]);
 
   if (!isOpen) return null;
@@ -71,9 +80,10 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
       }
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      alert(error.response?.data?.message || 'Gagal menyimpan booking');
+      const errObj = error as { response?: { data?: { message?: string } } };
+      alert(errObj.response?.data?.message || 'Gagal menyimpan booking');
     } finally {
       setLoading(false);
     }
@@ -102,7 +112,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <label className="block text-sm font-medium text-gray-700">Customer <span className="text-red-500">*</span></label>
                   <select required value={formData.customerId} onChange={e => setFormData({...formData, customerId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Customer...</option>
-                    {Array.isArray(customers) && customers.map((c: any) => (
+                    {Array.isArray(customers) && customers.map((c: MasterData) => (
                       <option key={c.id} value={c.id}>
                         {c?.fullName || c?.name || 'Pelanggan'} ({c?.phoneNumber || c?.phone || '-'})
                       </option>
@@ -114,7 +124,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <label className="block text-sm font-medium text-gray-700">Kategori Servis</label>
                   <select value={formData.serviceCategoryId} onChange={e => setFormData({...formData, serviceCategoryId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Kategori...</option>
-                    {Array.isArray(serviceCategories) && serviceCategories.map((sc: any) => (
+                    {Array.isArray(serviceCategories) && serviceCategories.map((sc: MasterData) => (
                       <option key={sc.id} value={sc.id}>{sc?.name || 'Kategori'}</option>
                     ))}
                   </select>
@@ -124,7 +134,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <label className="block text-sm font-medium text-gray-700">Tipe Perangkat</label>
                   <select value={formData.deviceTypeId} onChange={e => setFormData({...formData, deviceTypeId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Tipe...</option>
-                    {Array.isArray(deviceTypes) && deviceTypes.map((dt: any) => (
+                    {Array.isArray(deviceTypes) && deviceTypes.map((dt: MasterData) => (
                       <option key={dt.id} value={dt.id}>{dt?.name || 'Tipe'}</option>
                     ))}
                   </select>
@@ -134,7 +144,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <label className="block text-sm font-medium text-gray-700">Brand</label>
                   <select value={formData.brandId} onChange={e => setFormData({...formData, brandId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Brand...</option>
-                    {Array.isArray(brands) && brands.map((b: any) => (
+                    {Array.isArray(brands) && brands.map((b: MasterData) => (
                       <option key={b.id} value={b.id}>{b?.name || 'Brand'}</option>
                     ))}
                   </select>

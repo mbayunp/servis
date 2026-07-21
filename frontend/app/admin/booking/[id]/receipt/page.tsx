@@ -6,33 +6,60 @@ import { QRCodeSVG } from 'qrcode.react';
 import { Printer, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
 import api from '../../../../../lib/axios';
 
+interface BookingData {
+  id?: string;
+  bookingNumber?: string;
+  createdAt?: string;
+  estimatedFinish?: string;
+  customer?: {
+    fullName?: string;
+    name?: string;
+    phoneNumber?: string;
+    phone?: string;
+    address?: string;
+  };
+  address?: string;
+  deviceType?: { name?: string };
+  serviceCategory?: { name?: string };
+  brand?: { name?: string };
+  deviceName?: string;
+  serialNumber?: string;
+  accessories?: string;
+  complaint?: string;
+  diagnosis?: string;
+  status?: string;
+  estimatedCost?: number | string;
+  warrantyDays?: number | string;
+}
+
 export default function ServiceReceiptPage() {
   const params = useParams();
   const router = useRouter();
   const bookingId = params.id as string;
 
-  const [booking, setBooking] = useState<any>(null);
+  const [booking, setBooking] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchBookingDetail = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await api.get(`/bookings/${bookingId}`);
+        setBooking(res.data.data);
+      } catch (err: unknown) {
+        console.error('Failed to fetch booking:', err);
+        const errorObj = err as { response?: { data?: { message?: string } } };
+        setError(errorObj.response?.data?.message || 'Gagal memuat data nota servis.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (!bookingId) return;
     fetchBookingDetail();
   }, [bookingId]);
-
-  const fetchBookingDetail = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await api.get(`/bookings/${bookingId}`);
-      setBooking(res.data.data);
-    } catch (err: any) {
-      console.error('Failed to fetch booking:', err);
-      setError(err.response?.data?.message || 'Gagal memuat data nota servis.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-';
@@ -175,15 +202,15 @@ export default function ServiceReceiptPage() {
         <div className="py-2 border-b border-dashed border-slate-400 space-y-1">
           <div className="font-bold text-center underline uppercase tracking-wider mb-1.5">INFORMASI PELANGGAN</div>
           <div className="flex justify-between">
-            <span className="w-24 flex-shrink-0">Nama</span>
+            <span className="w-24 shrink-0">Nama</span>
             <span className="flex-1 font-semibold">: {customerName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-24 flex-shrink-0">No HP</span>
+            <span className="w-24 shrink-0">No HP</span>
             <span className="flex-1">: {customerPhone}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-24 flex-shrink-0">Alamat</span>
+            <span className="w-24 shrink-0">Alamat</span>
             <span className="flex-1">: {customerAddress}</span>
           </div>
         </div>
@@ -192,23 +219,23 @@ export default function ServiceReceiptPage() {
         <div className="py-2 border-b border-dashed border-slate-400 space-y-1">
           <div className="font-bold text-center underline uppercase tracking-wider mb-1.5">DETAIL BARANG</div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Barang</span>
+            <span className="w-28 shrink-0">Barang</span>
             <span className="flex-1 font-semibold">: {itemType}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Merk / Model</span>
+            <span className="w-28 shrink-0">Merk / Model</span>
             <span className="flex-1">: {brandModel}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">No. Seri (SN)</span>
+            <span className="w-28 shrink-0">No. Seri (SN)</span>
             <span className="flex-1">: {serialNumber}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Kelengkapan</span>
+            <span className="w-28 shrink-0">Kelengkapan</span>
             <span className="flex-1">: {accessories}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Keluhan</span>
+            <span className="w-28 shrink-0">Keluhan</span>
             <span className="flex-1">: {complaint}</span>
           </div>
         </div>
@@ -217,15 +244,15 @@ export default function ServiceReceiptPage() {
         <div className="py-2 border-b border-dashed border-slate-400 space-y-1">
           <div className="font-bold text-center underline uppercase tracking-wider mb-1.5">STATUS & ESTIMASI BIAYA</div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Diagnosa Awal</span>
+            <span className="w-28 shrink-0">Diagnosa Awal</span>
             <span className="flex-1">: {diagnosis}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Status Saat Ini</span>
+            <span className="w-28 shrink-0">Status Saat Ini</span>
             <span className="flex-1 uppercase font-bold">: {status}</span>
           </div>
           <div className="flex justify-between">
-            <span className="w-28 flex-shrink-0">Estimasi Biaya</span>
+            <span className="w-28 shrink-0">Estimasi Biaya</span>
             <span className="flex-1 font-black text-black">: {formatCurrency(estimatedCost)}</span>
           </div>
           <div className="text-[10px] italic text-slate-600 mt-1">

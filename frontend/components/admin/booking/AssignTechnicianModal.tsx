@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Wrench } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 import api from '../../../lib/axios';
 
 interface AssignTechnicianModalProps {
   isOpen: boolean;
   onClose: () => void;
-  booking: any;
+  booking: Record<string, unknown> | null;
   onSuccess: () => void;
 }
 
@@ -18,12 +18,12 @@ export function AssignTechnicianModal({ isOpen, onClose, booking, onSuccess }: A
     if (isOpen) {
       api.get('/technicians').then(res => setTechnicians(res.data.data));
       if (booking) {
-        setTechnicianId(booking?.technicianId || '');
+        setTechnicianId(String(booking?.technicianId || (booking?.technician as Record<string, unknown>)?.id || ''));
       }
     }
   }, [isOpen, booking]);
 
-  if (!isOpen || !booking) return null;
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,13 +60,13 @@ export function AssignTechnicianModal({ isOpen, onClose, booking, onSuccess }: A
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                   <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Assign Teknisi</h3>
                   <div className="mt-2 text-sm text-gray-500 mb-4">
-                    Booking: <span className="font-semibold">{booking?.bookingNumber || '-'}</span>
+                    Booking: <span className="font-semibold">{String(booking?.bookingNumber || '-')}</span>
                   </div>
                   
                   <div>
                     <select value={technicianId} onChange={e => setTechnicianId(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md border">
                       <option value="">-- Pilih Teknisi --</option>
-                      {technicians.map((t: any) => <option key={t.id} value={t.id}>{t.name} (Ahli: {t.specialization || '-'})</option>)}
+                      {technicians.map((t: { id: string | number, name: string, specialization?: string }) => <option key={t.id} value={t.id}>{t.name} (Ahli: {t.specialization || '-'})</option>)}
                     </select>
                   </div>
                 </div>

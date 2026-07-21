@@ -43,21 +43,22 @@ export default function LoginPage() {
       } else {
         triggerError('Login gagal: Respon token dari server tidak valid.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Jeda minimal 1200ms ketika login gagal agar pengguna sempat melihat indikator proses sebelum pesan error ditampilkan
       const elapsedTime = Date.now() - startTime;
       if (elapsedTime < 1200) {
         await new Promise((resolve) => setTimeout(resolve, 1200 - elapsedTime));
       }
 
-      const serverMsg = err.response?.data?.message;
+      const errorObj = err as { response?: { data?: { message?: string }, status?: number } };
+      const serverMsg = errorObj.response?.data?.message;
       let userFriendlyMsg = serverMsg || 'Gagal masuk. Silakan periksa kembali email dan kata sandi Anda.';
 
-      if (err.response?.status === 401) {
+      if (errorObj.response?.status === 401) {
         userFriendlyMsg = 'Email atau kata sandi yang Anda masukkan tidak cocok.';
-      } else if (err.response?.status === 403) {
+      } else if (errorObj.response?.status === 403) {
         userFriendlyMsg = 'Akses Ditolak (403): Akun ini tidak memiliki akses ke portal administrasi.';
-      } else if (!err.response) {
+      } else if (!errorObj.response) {
         userFriendlyMsg = 'Koneksi gagal: Tidak dapat terhubung ke server backend (Port 5000).';
       }
 
@@ -89,11 +90,11 @@ export default function LoginPage() {
       </Link>
 
       {/* Dynamic Background Ambient Gradients */}
-      <div className="absolute top-[-10%] left-[-10%] w-[45rem] h-[45rem] rounded-full bg-gradient-to-br from-red-600/30 to-red-900/10 blur-[120px] pointer-events-none animate-pulse"></div>
-      <div className="absolute bottom-[-15%] right-[-10%] w-[35rem] h-[35rem] rounded-full bg-gradient-to-tr from-red-500/20 to-orange-500/10 blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-180 h-180 rounded-full bg-linear-to-br from-red-600/30 to-red-900/10 blur-[120px] pointer-events-none animate-pulse"></div>
+      <div className="absolute bottom-[-15%] right-[-10%] w-140 h-140 rounded-full bg-linear-to-tr from-red-500/20 to-orange-500/10 blur-[100px] pointer-events-none"></div>
       
       {/* Subtle Grid Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none"></div>
 
       <div className={`max-w-md w-full space-y-8 p-8 sm:p-10 bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-800/80 relative z-10 transition-all duration-300 ${shake ? 'animate-bounce border-red-500/50 shadow-red-950/50' : ''}`}>
         
@@ -145,7 +146,7 @@ export default function LoginPage() {
           {/* Prominent Error Box with Smooth Fade-In */}
           {error && (
             <div className="p-4 rounded-xl bg-red-950/80 border border-red-500/40 text-red-200 text-xs shadow-lg backdrop-blur-md flex items-start gap-3 animate-in fade-in zoom-in duration-300">
-              <FaExclamationTriangle className="text-red-400 text-base flex-shrink-0 mt-0.5" />
+              <FaExclamationTriangle className="text-red-400 text-base shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="font-bold text-red-300 mb-0.5">Gagal Masuk</p>
                 <p className="leading-relaxed text-red-200/90">{error}</p>
@@ -223,7 +224,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3.5 px-4 text-sm font-bold rounded-xl text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-lg shadow-red-600/30 hover:shadow-red-600/50 hover:-translate-y-0.5 disabled:opacity-70 disabled:translate-y-0 transition-all duration-300 cursor-pointer"
+              className="w-full flex justify-center items-center py-3.5 px-4 text-sm font-bold rounded-xl text-white bg-linear-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-lg shadow-red-600/30 hover:shadow-red-600/50 hover:-translate-y-0.5 disabled:opacity-70 disabled:translate-y-0 transition-all duration-300 cursor-pointer"
             >
               {loading ? (
                 <span className="flex items-center gap-2.5">

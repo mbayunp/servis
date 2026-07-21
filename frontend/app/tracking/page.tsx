@@ -12,7 +12,7 @@ import api from '../../lib/axios';
 const faqs = [
   {
     q: 'Apa itu nomor resi / kode servis?',
-    a: 'Kode servis adalah nomor unik yang diawali dengan SCJ- yang diberikan saat Anda mendaftarkan perbaikan. Kode ini digunakan untuk melacak status pengerjaan secara real-time.'
+    a: 'Kode servis adalah nomor unik yang diawali dengan SCJ- diberikan saat Anda mendaftarkan perbaikan. Kode ini digunakan untuk melacak status pengerjaan secara real-time.'
   },
   {
     q: 'Mengapa alamat & No. HP tidak tampil di pencarian publik?',
@@ -109,22 +109,21 @@ export default function PublicTrackingPage() {
     switch (status?.toUpperCase().replace(/\s+/g, '_')) {
       case 'PENDING':
       case 'RECEIVED':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-slate-100 text-slate-800 border-slate-300 font-semibold';
       case 'CHECKING':
-        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+        return 'bg-slate-900 text-white border-slate-900 font-semibold';
       case 'WAITING_APPROVAL':
-        return 'bg-amber-100 text-amber-800 border-amber-200';
+        return 'bg-red-50 text-red-700 border-red-200 font-bold';
       case 'REPAIRING':
       case 'ON_PROGRESS':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'QC':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-red-600 text-white border-red-600 font-bold';
       case 'FINISHED':
       case 'COMPLETED':
       case 'PICKED_UP':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        return 'bg-black text-white border-black font-bold';
       case 'CANCELLED':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-950 text-red-200 border-red-900 font-bold';
       default:
         return 'bg-slate-100 text-slate-700 border-slate-200';
     }
@@ -134,12 +133,16 @@ export default function PublicTrackingPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       
       {/* Hero Section */}
-      <section className="bg-slate-900 text-white pt-24 pb-16 px-6 relative overflow-hidden">
+      <section className="bg-slate-950 text-white pt-24 pb-16 px-6 relative overflow-hidden">
+        {/* Subtle Ambient Gradients */}
+        <div className="absolute top-[-20%] left-[-10%] w-[35rem] h-[35rem] rounded-full bg-red-600/20 blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[30rem] h-[30rem] rounded-full bg-red-500/10 blur-[100px] pointer-events-none"></div>
+
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 mb-4">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 mb-4 tracking-wide">
             <Clock className="h-3.5 w-3.5" /> Real-time Repair Tracking
           </span>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
             Lacak Status Perbaikan Perangkat
           </h1>
           <p className="text-slate-400 text-base md:text-lg mb-8 max-w-2xl mx-auto">
@@ -154,12 +157,12 @@ export default function PublicTrackingPage() {
                 placeholder="Contoh: SCJ-20260720-123"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 text-base bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
+                className="w-full pl-12 pr-4 py-3.5 text-base bg-slate-900 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-red-600 shadow-inner font-medium"
               />
             </div>
             <button
               type="submit"
-              className="px-6 py-3.5 bg-blue-600 hover:bg-blue-700 font-semibold text-white rounded-xl shadow-lg transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+              className="px-6 py-3.5 bg-red-600 hover:bg-red-700 font-bold text-white rounded-xl shadow-lg shadow-red-600/30 transition-all active:scale-95 whitespace-nowrap cursor-pointer"
             >
               Lacak Sekarang
             </button>
@@ -172,29 +175,29 @@ export default function PublicTrackingPage() {
         <section className="py-12 px-6 max-w-6xl mx-auto">
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-red-600"></div>
             </div>
           ) : result ? (
             <div className="space-y-8 animate-in fade-in duration-200">
               
               {/* Notification Banner */}
               {actionMessage && (
-                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center gap-2 shadow-sm">
-                  <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                <div className="p-4 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center gap-2.5 shadow-sm border border-slate-800">
+                  <CheckCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                   {actionMessage}
                 </div>
               )}
 
               {/* Logged-In Customer Greeting */}
               {isLoggedIn && result.customer && (
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="bg-gradient-to-r from-red-600 via-red-700 to-slate-950 text-white p-6 rounded-2xl shadow-md shadow-red-950/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
-                    <span className="text-xs uppercase tracking-wider font-semibold text-blue-200">Pelanggan Terautentikasi</span>
+                    <span className="text-xs uppercase tracking-wider font-semibold text-red-200">Pelanggan Terautentikasi</span>
                     <h2 className="text-xl font-bold mt-0.5">Halo, {result.customer.fullName}!</h2>
-                    <p className="text-xs text-blue-100 mt-1">Berikut rincian lengkap status perbaikan perangkat Anda.</p>
+                    <p className="text-xs text-red-100 mt-1">Berikut rincian lengkap status perbaikan perangkat Anda.</p>
                   </div>
-                  <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-xs border border-white/20">
-                    <span className="block text-blue-200">Status Pembayaran</span>
+                  <div className="bg-black/30 backdrop-blur-md px-4 py-2 rounded-xl text-xs border border-white/10">
+                    <span className="block text-red-200">Status Pembayaran</span>
                     <span className="font-bold text-white text-sm">
                       {result.invoices && result.invoices.length > 0 ? result.invoices[0].status : 'Belum Ada Invoice'}
                     </span>
@@ -203,11 +206,11 @@ export default function PublicTrackingPage() {
               )}
 
               {/* Card Main Overview & Progress Bar */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-6">
                   <div>
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Nomor Resi / Booking</span>
-                    <h2 className="text-2xl font-bold font-mono text-slate-900">{result.bookingNumber}</h2>
+                    <h2 className="text-2xl font-black font-mono text-slate-900">{result.bookingNumber}</h2>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`px-4 py-1.5 rounded-full text-xs font-bold border ${getStatusBadge(result.status)}`}>
@@ -220,11 +223,11 @@ export default function PublicTrackingPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs font-bold text-slate-700">
                     <span>Progress Perbaikan</span>
-                    <span className="text-blue-600 font-mono text-sm">{result.progressPercentage || 20}%</span>
+                    <span className="text-red-600 font-mono text-sm">{result.progressPercentage || 20}%</span>
                   </div>
                   <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
                     <div 
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-500 shadow-sm"
+                      className="h-full bg-gradient-to-r from-red-600 to-red-500 rounded-full transition-all duration-500 shadow-sm"
                       style={{ width: `${result.progressPercentage || 20}%` }}
                     ></div>
                   </div>
@@ -240,20 +243,20 @@ export default function PublicTrackingPage() {
 
                 {/* Device & Technician Details Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                     <div className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1">
-                      <Monitor className="h-3.5 w-3.5 text-blue-600" /> Perangkat
+                      <Monitor className="h-3.5 w-3.5 text-red-600" /> Perangkat
                     </div>
                     <div className="font-bold text-slate-900 text-sm">
                       {result.brand?.name || ''} {result.deviceType?.name || ''}
                     </div>
                     <div className="text-xs text-slate-600">{result.deviceName || 'Perangkat Elektronik'}</div>
-                    <div className="text-[11px] text-slate-400">SN: {result.serialNumber || '-'}</div>
+                    <div className="text-[11px] text-slate-400 font-mono">SN: {result.serialNumber || '-'}</div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                     <div className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1">
-                      <Wrench className="h-3.5 w-3.5 text-blue-600" /> Teknisi Bertugas
+                      <Wrench className="h-3.5 w-3.5 text-red-600" /> Teknisi Bertugas
                     </div>
                     <div className="font-bold text-slate-900 text-sm">
                       {result.technician?.name || 'Belum Ditugaskan'}
@@ -263,11 +266,11 @@ export default function PublicTrackingPage() {
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
                     <div className="text-xs text-slate-400 font-semibold uppercase flex items-center gap-1">
-                      <DollarSign className="h-3.5 w-3.5 text-blue-600" /> Estimasi Biaya
+                      <DollarSign className="h-3.5 w-3.5 text-red-600" /> Estimasi Biaya
                     </div>
-                    <div className="font-bold text-emerald-600 text-lg">
+                    <div className="font-bold text-red-600 text-lg">
                       {result.estimatedCost ? formatRupiah(result.estimatedCost) : 'Sedang Dihitung'}
                     </div>
                     <div className="text-xs text-slate-500">
@@ -278,24 +281,24 @@ export default function PublicTrackingPage() {
 
                 {/* Complaint & Technician Notes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100 space-y-1">
-                    <span className="text-xs font-semibold uppercase text-amber-800 block">Keluhan Masalah</span>
-                    <p className="text-sm text-slate-800">{result.complaint}</p>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                    <span className="text-xs font-bold uppercase text-slate-900 block tracking-wider">Keluhan Masalah</span>
+                    <p className="text-sm text-slate-700 leading-relaxed">{result.complaint}</p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 space-y-1">
-                    <span className="text-xs font-semibold uppercase text-blue-800 block">Diagnosa Teknisi</span>
-                    <p className="text-sm text-slate-800">{result.diagnosis || 'Belum ada catatan diagnosa.'}</p>
+                  <div className="p-4 rounded-xl bg-red-50/50 border border-red-100 space-y-1">
+                    <span className="text-xs font-bold uppercase text-red-700 block tracking-wider">Diagnosa Teknisi</span>
+                    <p className="text-sm text-slate-800 leading-relaxed">{result.diagnosis || 'Belum ada catatan diagnosa.'}</p>
                   </div>
                 </div>
 
                 {/* PRIVACY MASKING BANNER FOR PUBLIC */}
                 {!isLoggedIn && (
-                  <div className="p-3 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                  <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <Lock className="h-4 w-4 text-slate-400" /> Alamat & Kontak pelanggan disembunyikan demi privasi publik.
+                      <Lock className="h-4 w-4 text-slate-500" /> Alamat & Kontak pelanggan disembunyikan demi privasi publik.
                     </span>
-                    <a href="/login" className="font-semibold text-blue-600 hover:underline flex items-center gap-0.5">
+                    <a href="/login" className="font-bold text-red-600 hover:text-red-700 flex items-center gap-0.5">
                       Login Pelanggan <ArrowRight className="h-3 w-3" />
                     </a>
                   </div>
@@ -303,12 +306,12 @@ export default function PublicTrackingPage() {
 
                 {/* ESTIMATE APPROVAL BUTTONS (If status requires approval & Customer Logged-In) */}
                 {isLoggedIn && (result.status === 'Waiting Approval' || result.status === 'WAITING_APPROVAL' || result.status === 'Checking') && (
-                  <div className="p-6 rounded-2xl bg-amber-50 border border-amber-200 space-y-4">
+                  <div className="p-6 rounded-2xl bg-red-50/80 border border-red-200 space-y-4">
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="h-6 w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-bold text-amber-900 text-base">Persetujuan Estimasi Biaya Perbaikan</h4>
-                        <p className="text-xs text-amber-800 mt-1">
+                        <h4 className="font-bold text-slate-900 text-base">Persetujuan Estimasi Biaya Perbaikan</h4>
+                        <p className="text-xs text-slate-700 mt-1">
                           Teknisi telah memeriksa perangkat Anda dengan estimasi biaya <span className="font-bold text-slate-900">{formatRupiah(result.estimatedCost || 0)}</span>. Mohon berikan konfirmasi persetujuan untuk memulai perbaikan.
                         </p>
                       </div>
@@ -317,14 +320,14 @@ export default function PublicTrackingPage() {
                       <button
                         onClick={handleApprove}
                         disabled={actionLoading}
-                        className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        className="w-full sm:w-auto px-6 py-2.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
-                        <Check className="h-4 w-4" /> Setujui & Lanjutkan Perbaikan
+                        <Check className="h-4 w-4 text-red-500" /> Setujui & Lanjutkan Perbaikan
                       </button>
                       <button
                         onClick={handleReject}
                         disabled={actionLoading}
-                        className="w-full sm:w-auto px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        className="w-full sm:w-auto px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         <X className="h-4 w-4" /> Batalkan Perbaikan
                       </button>
@@ -335,9 +338,9 @@ export default function PublicTrackingPage() {
 
               {/* Before & After Photos Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                   <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-blue-600" /> Foto Sebelum Perbaikan (Before)
+                    <ImageIcon className="h-4 w-4 text-red-600" /> Foto Sebelum Perbaikan (Before)
                   </h3>
                   {result.beforePhotos && result.beforePhotos.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
@@ -354,9 +357,9 @@ export default function PublicTrackingPage() {
                   )}
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
                   <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-emerald-600" /> Foto Sesudah Perbaikan (After)
+                    <ImageIcon className="h-4 w-4 text-slate-900" /> Foto Sesudah Perbaikan (After)
                   </h3>
                   {result.afterPhotos && result.afterPhotos.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
@@ -375,16 +378,16 @@ export default function PublicTrackingPage() {
               </div>
 
               {/* Vertical Timeline Events Section */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-blue-600" /> Timeline & Histori Aktivitas Perbaikan
+                  <Clock className="h-5 w-5 text-red-600" /> Timeline & Histori Aktivitas Perbaikan
                 </h3>
 
                 {result.histories && result.histories.length > 0 ? (
                   <div className="relative border-l-2 border-slate-200 ml-4 space-y-6">
                     {result.histories.map((item: any) => (
                       <div key={item.id} className="relative pl-6">
-                        <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-blue-600 border-2 border-white ring-4 ring-blue-100"></div>
+                        <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-red-600 border-2 border-white ring-4 ring-red-100"></div>
                         <div className="space-y-1">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                             <h4 className="font-bold text-slate-900 text-sm">{item.title}</h4>
@@ -409,7 +412,7 @@ export default function PublicTrackingPage() {
             </div>
           ) : (
             /* Empty State */
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center max-w-lg mx-auto">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center max-w-lg mx-auto">
               <SearchX className="h-16 w-16 text-slate-300 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-slate-900 mb-2">Kode Resi Tidak Ditemukan</h3>
               <p className="text-slate-500 text-xs mb-6">
@@ -417,7 +420,7 @@ export default function PublicTrackingPage() {
               </p>
               <button
                 onClick={() => setSearchInput('')}
-                className="px-4 py-2 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg"
+                className="px-5 py-2.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all cursor-pointer"
               >
                 Coba Kode Lain
               </button>
@@ -442,7 +445,7 @@ export default function PublicTrackingPage() {
                   className="w-full px-5 py-4 text-left font-semibold text-slate-900 text-sm flex justify-between items-center bg-slate-50/50 hover:bg-slate-50"
                 >
                   {faq.q}
-                  {openFaq === i ? <ChevronUp className="h-4 w-4 text-blue-600" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                  {openFaq === i ? <ChevronUp className="h-4 w-4 text-red-600" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
                 </button>
                 {openFaq === i && (
                   <div className="px-5 py-3 text-xs text-slate-600 bg-white border-t border-slate-100 leading-relaxed">
@@ -457,3 +460,4 @@ export default function PublicTrackingPage() {
     </div>
   );
 }
+
