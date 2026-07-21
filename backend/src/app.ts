@@ -48,9 +48,11 @@ import articleRoute from './routes/article.route.js';
 import galleryRoute from './routes/gallery.route.js';
 import testimonialRoute from './routes/testimonial.route.js';
 import settingsRoute from './routes/settings.route.js';
+import publicRoute from './routes/public.route.js';
 
 // 5. API Routes
 app.get('/api', (_req, res) => res.json({ success: true, message: 'Servis Cianjur API v2 (MVC) is running' }));
+app.use('/api/public', publicRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);
 app.use('/api/roles', roleRoute);

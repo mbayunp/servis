@@ -11,6 +11,7 @@ export class Booking extends Model {
   public serviceCategoryId!: string;
   public deviceName!: string | null;
   public serialNumber!: string | null;
+  public accessories!: string | null;
   public complaint!: string;
   public diagnosis!: string | null;
   public solution!: string | null;
@@ -42,6 +43,7 @@ Booking.init(
     serviceCategoryId: { type: DataTypes.UUID, allowNull: true, field: 'service_category_id' },
     deviceName: { type: DataTypes.STRING, allowNull: true, field: 'device_name' },
     serialNumber: { type: DataTypes.STRING, allowNull: true, field: 'serial_number' },
+    accessories: { type: DataTypes.TEXT, allowNull: true, field: 'accessories' },
     complaint: { type: DataTypes.TEXT, allowNull: false },
     diagnosis: { type: DataTypes.TEXT, allowNull: true },
     solution: { type: DataTypes.TEXT, allowNull: true },

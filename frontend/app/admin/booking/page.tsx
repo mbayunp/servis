@@ -223,11 +223,11 @@ export default function AdminBookingPage() {
       )}
 
       {/* Modals & Drawers */}
-      <BookingDetailDrawer isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} booking={selectedBooking} />
-      <BookingFormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />
-      <AssignTechnicianModal isOpen={isAssignOpen} onClose={() => setIsAssignOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />
-      <UpdateStatusModal isOpen={isStatusOpen} onClose={() => setIsStatusOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />
-      <UploadPhotoModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />
+      {isDetailOpen && <BookingDetailDrawer isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} booking={selectedBooking} />}
+      {isFormOpen && <BookingFormModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />}
+      {isAssignOpen && <AssignTechnicianModal isOpen={isAssignOpen} onClose={() => setIsAssignOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />}
+      {isStatusOpen && <UpdateStatusModal isOpen={isStatusOpen} onClose={() => setIsStatusOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />}
+      {isUploadOpen && <UploadPhotoModal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} booking={selectedBooking} onSuccess={fetchBookings} />}
     </div>
   );
 }

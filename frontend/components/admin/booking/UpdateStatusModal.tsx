@@ -15,7 +15,7 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
 
   useEffect(() => {
     if (isOpen && booking) {
-      setStatus(booking.status || 'Pending');
+      setStatus(booking?.status || 'Pending');
     }
   }, [isOpen, booking]);
 
@@ -23,7 +23,7 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!status) return;
+    if (!status || !booking?.id) return;
     
     setLoading(true);
     try {
@@ -44,7 +44,7 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} aria-hidden="true"></div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+        <div className="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
           <form onSubmit={handleSubmit}>
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="sm:flex sm:items-start">
@@ -54,7 +54,7 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                   <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Ubah Status Booking</h3>
                   <div className="mt-2 text-sm text-gray-500 mb-4">
-                    Booking: <span className="font-semibold">{booking.bookingNumber}</span>
+                    Booking: <span className="font-semibold">{booking?.bookingNumber || '-'}</span>
                   </div>
                   
                   <div>

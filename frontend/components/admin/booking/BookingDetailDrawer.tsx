@@ -39,10 +39,15 @@ export function BookingDetailDrawer({ isOpen, onClose, booking }: BookingDetailD
                 
                 {/* Actions */}
                 <div className="mb-6 flex space-x-3">
-                  <button onClick={() => window.print()} className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    <Printer className="-ml-1 mr-2 h-5 w-5 text-gray-500" />
-                    Cetak Invoice
-                  </button>
+                  <a
+                    href={`/admin/booking/${booking.id}/receipt`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 border border-red-200 shadow-sm text-sm font-semibold rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors cursor-pointer"
+                  >
+                    <Printer className="-ml-1 mr-2 h-5 w-5" />
+                    Cetak Nota Servis
+                  </a>
                 </div>
 
                 <div className="space-y-6">

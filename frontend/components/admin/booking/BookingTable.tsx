@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Eye, Trash2, Camera, UploadCloud, UserCheck, Activity } from 'lucide-react';
+import { Edit, Eye, Trash2, Camera, UploadCloud, UserCheck, Activity, Printer } from 'lucide-react';
 
 interface BookingTableProps {
   bookings: any[];
@@ -98,6 +98,7 @@ export function BookingTable({
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex items-center justify-end space-x-2">
                   <button onClick={() => onView(booking.id)} className="text-blue-600 hover:text-blue-900 p-1" title="Detail"><Eye className="w-4 h-4" /></button>
+                  <a href={`/admin/booking/${booking.id}/receipt`} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-900 p-1" title="Cetak Nota Servis"><Printer className="w-4 h-4" /></a>
                   <button onClick={() => onUpdateStatus(booking)} className="text-emerald-600 hover:text-emerald-900 p-1" title="Ubah Status"><Activity className="w-4 h-4" /></button>
                   <button onClick={() => onAssignTechnician(booking)} className="text-purple-600 hover:text-purple-900 p-1" title="Assign Teknisi"><UserCheck className="w-4 h-4" /></button>
                   <button onClick={() => onUploadPhoto(booking)} className="text-teal-600 hover:text-teal-900 p-1" title="Upload Foto"><Camera className="w-4 h-4" /></button>

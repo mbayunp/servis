@@ -45,7 +45,9 @@ export const getAll = async (req: Request, res: Response) => {
     if (search) {
       whereCondition[Op.or] = [
         { bookingNumber: { [Op.like]: `%${search}%` } },
-        { deviceName: { [Op.like]: `%${search}%` } }
+        { deviceName: { [Op.like]: `%${search}%` } },
+        { '$customer.fullName$': { [Op.like]: `%${search}%` } },
+        { '$customer.phoneNumber$': { [Op.like]: `%${search}%` } }
       ];
     }
     if (status) {

@@ -16,43 +16,44 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
   const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
   const [serviceCategories, setServiceCategories] = useState<any[]>([]);
 
-  const [formData, setFormData] = useState({
+  const defaultFormData = {
     customerId: '',
     brandId: '',
     deviceTypeId: '',
     serviceCategoryId: '',
     deviceName: '',
     serialNumber: '',
+    accessories: '',
     complaint: '',
     isHomeService: false,
     priority: 'NORMAL'
-  });
+  };
+
+  const [formData, setFormData] = useState(defaultFormData);
 
   useEffect(() => {
     if (isOpen) {
-      // Fetch Master Data safely
-      api.get('/customers').then(res => setCustomers(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setCustomers([]));
-      api.get('/brands').then(res => setBrands(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setBrands([]));
-      api.get('/device-types').then(res => setDeviceTypes(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setDeviceTypes([]));
-      api.get('/service-categories').then(res => setServiceCategories(Array.isArray(res.data.data) ? res.data.data : [])).catch(() => setServiceCategories([]));
+      // Fetch Master Data safely with optional chaining
+      api.get('/customers').then(res => setCustomers(Array.isArray(res?.data?.data) ? res.data.data : [])).catch(() => setCustomers([]));
+      api.get('/brands').then(res => setBrands(Array.isArray(res?.data?.data) ? res.data.data : [])).catch(() => setBrands([]));
+      api.get('/device-types').then(res => setDeviceTypes(Array.isArray(res?.data?.data) ? res.data.data : [])).catch(() => setDeviceTypes([]));
+      api.get('/service-categories').then(res => setServiceCategories(Array.isArray(res?.data?.data) ? res.data.data : [])).catch(() => setServiceCategories([]));
 
-      if (booking) {
+      if (booking?.id) {
         setFormData({
-          customerId: booking.customerId || '',
-          brandId: booking.brandId || '',
-          deviceTypeId: booking.deviceTypeId || '',
-          serviceCategoryId: booking.serviceCategoryId || '',
-          deviceName: booking.deviceName || '',
-          serialNumber: booking.serialNumber || '',
-          complaint: booking.complaint || '',
-          isHomeService: booking.isHomeService || false,
-          priority: booking.priority || 'NORMAL'
+          customerId: booking?.customerId || '',
+          brandId: booking?.brandId || '',
+          deviceTypeId: booking?.deviceTypeId || '',
+          serviceCategoryId: booking?.serviceCategoryId || '',
+          deviceName: booking?.deviceName || '',
+          serialNumber: booking?.serialNumber || '',
+          accessories: booking?.accessories || '',
+          complaint: booking?.complaint || '',
+          isHomeService: Boolean(booking?.isHomeService),
+          priority: booking?.priority || 'NORMAL'
         });
       } else {
-        setFormData({
-          customerId: '', brandId: '', deviceTypeId: '', serviceCategoryId: '',
-          deviceName: '', serialNumber: '', complaint: '', isHomeService: false, priority: 'NORMAL'
-        });
+        setFormData(defaultFormData);
       }
     }
   }, [isOpen, booking]);
@@ -63,7 +64,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
     e.preventDefault();
     setLoading(true);
     try {
-      if (booking) {
+      if (booking?.id) {
         await api.put(`/bookings/${booking.id}`, formData);
       } else {
         await api.post('/bookings', formData);
@@ -84,12 +85,12 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
         <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={onClose}></div>
         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
+        <div className="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full">
           <form onSubmit={handleSubmit}>
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="flex justify-between items-center mb-5">
                 <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  {booking ? 'Edit Booking' : 'Tambah Booking Baru'}
+                  {booking?.id ? 'Edit Booking' : 'Tambah Booking Baru'}
                 </h3>
                 <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-500">
                   <X className="h-6 w-6" />
@@ -103,7 +104,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                     <option value="">Pilih Customer...</option>
                     {Array.isArray(customers) && customers.map((c: any) => (
                       <option key={c.id} value={c.id}>
-                        {c.fullName || c.name || 'Pelanggan'} ({c.phoneNumber || c.phone || '-'})
+                        {c?.fullName || c?.name || 'Pelanggan'} ({c?.phoneNumber || c?.phone || '-'})
                       </option>
                     ))}
                   </select>
@@ -114,7 +115,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <select value={formData.serviceCategoryId} onChange={e => setFormData({...formData, serviceCategoryId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Kategori...</option>
                     {Array.isArray(serviceCategories) && serviceCategories.map((sc: any) => (
-                      <option key={sc.id} value={sc.id}>{sc.name}</option>
+                      <option key={sc.id} value={sc.id}>{sc?.name || 'Kategori'}</option>
                     ))}
                   </select>
                 </div>
@@ -124,7 +125,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <select value={formData.deviceTypeId} onChange={e => setFormData({...formData, deviceTypeId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Tipe...</option>
                     {Array.isArray(deviceTypes) && deviceTypes.map((dt: any) => (
-                      <option key={dt.id} value={dt.id}>{dt.name}</option>
+                      <option key={dt.id} value={dt.id}>{dt?.name || 'Tipe'}</option>
                     ))}
                   </select>
                 </div>
@@ -134,7 +135,7 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                   <select value={formData.brandId} onChange={e => setFormData({...formData, brandId: e.target.value})} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border">
                     <option value="">Pilih Brand...</option>
                     {Array.isArray(brands) && brands.map((b: any) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
+                      <option key={b.id} value={b.id}>{b?.name || 'Brand'}</option>
                     ))}
                   </select>
                 </div>
@@ -142,6 +143,16 @@ export function BookingFormModal({ isOpen, onClose, booking, onSuccess }: Bookin
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nama Unit / Model <span className="text-red-500">*</span></label>
                   <input required type="text" value={formData.deviceName} onChange={e => setFormData({...formData, deviceName: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Contoh: LED TV 43 Inch / Laptop ASUS" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">No. Seri (SN)</label>
+                  <input type="text" value={formData.serialNumber} onChange={e => setFormData({...formData, serialNumber: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Contoh: SN-123456789" />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Kelengkapan (Kelengkapan Unit)</label>
+                  <input type="text" value={formData.accessories} onChange={e => setFormData({...formData, accessories: e.target.value})} className="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" placeholder="Contoh: Remote, Kabel Power, Adaptor, Dus..." />
                 </div>
 
                 <div className="sm:col-span-2">

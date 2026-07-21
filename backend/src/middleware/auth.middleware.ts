@@ -52,21 +52,25 @@ export const authorize = (allowedRolesOrPermissions: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const user = (req as any).user;
     if (!user || !user.role) {
-      res.status(403).json({ success: false, message: 'You do not have permission to access this resource' });
+      res.status(403).json({ success: false, message: 'You do not have permission to access this resource (No role assigned)' });
       return;
     }
     
-    const userRole = user.role.name;
-    if (userRole === 'SUPER_ADMIN') {
+    const userRole = user.role.name || '';
+    const userRoleUpper = userRole.toUpperCase().replace(/\s+/g, '_');
+    
+    if (userRoleUpper === 'SUPER_ADMIN' || userRoleUpper === 'SUPERADMIN') {
       return next(); 
     }
 
-    if (allowedRolesOrPermissions.includes(userRole)) {
+    const allowedUpper = allowedRolesOrPermissions.map(r => r.toUpperCase().replace(/\s+/g, '_'));
+
+    if (allowedUpper.includes(userRoleUpper)) {
       return next();
     }
     
-    const userPermissions = user.role.permissions?.map((p: any) => p.name) || [];
-    const hasPermission = allowedRolesOrPermissions.some(p => userPermissions.includes(p));
+    const userPermissions = user.role.permissions?.map((p: any) => p.name?.toUpperCase().replace(/\s+/g, '_')) || [];
+    const hasPermission = allowedUpper.some(p => userPermissions.includes(p));
     
     if (hasPermission) {
       return next();

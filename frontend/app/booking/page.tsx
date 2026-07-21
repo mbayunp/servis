@@ -1,22 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Wrench, CheckCircle, Clock, MapPin, Phone, Mail, 
   ChevronDown, ChevronUp, Image as ImageIcon, ShieldCheck, 
-  ThumbsUp, Truck, PenTool, Zap, X, User, HelpCircle
+  ThumbsUp, Truck, PenTool, Zap, User, HelpCircle, Loader2, Search
 } from 'lucide-react';
-
-const DEVICETYPES = [
-  "TV", "Mesin Cuci", "Kulkas", "AC", "Kipas Angin", "Dispenser", 
-  "Rice Cooker", "Microwave", "Sound System", "Komputer", "Laptop", 
-  "Printer", "Lainnya"
-];
-
-const BRANDS = [
-  "Polytron", "LG", "Samsung", "Sharp", "Panasonic", "Toshiba", 
-  "Miyako", "Cosmos", "Philips", "Aqua", "Modena", "Electrolux", "Lainnya"
-];
+import api from '../../lib/axios';
+import Link from 'next/link';
 
 const FAQS = [
   { q: "Bagaimana proses booking?", a: "Pilih layanan dan isi formulir booking. Admin kami akan menghubungi Anda melalui WhatsApp untuk konfirmasi biaya estimasi dan jadwal kedatangan." },
@@ -27,6 +18,24 @@ const FAQS = [
 ];
 
 export default function BookingPage() {
+  const [brands, setBrands] = useState<any[]>([]);
+  const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      try {
+        const res = await api.get('/public/master-data');
+        setBrands(res.data.data.brands || []);
+        setDeviceTypes(res.data.data.deviceTypes || []);
+        setServiceCategories(res.data.data.serviceCategories || []);
+      } catch (err) {
+        console.error('Failed to fetch master data', err);
+      }
+    };
+    fetchMasterData();
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     whatsapp: "",
@@ -35,16 +44,22 @@ export default function BookingPage() {
     serviceType: "Datang ke Workshop",
     date: "",
     time: "",
-    device: "",
-    brand: "",
-    model: "",
+    deviceTypeId: "",
+    brandId: "",
+    serviceCategoryId: "",
+    deviceName: "",
+    serialNumber: "",
+    accessories: "",
     complaint: "",
     tnc: false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
+  const [trackingInfo, setTrackingInfo] = useState<{bookingNumber: string, trackingId: string} | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
@@ -55,7 +70,6 @@ export default function BookingPage() {
       [name]: type === 'checkbox' ? checked : value
     }));
     
-    // Clear error when typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
@@ -66,10 +80,8 @@ export default function BookingPage() {
     if (!formData.name.trim()) newErrors.name = "Nama Lengkap wajib diisi";
     if (!formData.whatsapp.trim()) newErrors.whatsapp = "Nomor WhatsApp wajib diisi";
     if (!formData.address.trim()) newErrors.address = "Alamat wajib diisi";
-    if (!formData.date) newErrors.date = "Tanggal wajib diisi";
-    if (!formData.time) newErrors.time = "Jam wajib diisi";
-    if (!formData.device) newErrors.device = "Jenis Perangkat wajib dipilih";
-    if (!formData.brand) newErrors.brand = "Merk wajib dipilih";
+    if (!formData.deviceTypeId) newErrors.deviceTypeId = "Jenis Perangkat wajib dipilih";
+    if (!formData.brandId) newErrors.brandId = "Merk wajib dipilih";
     if (!formData.complaint.trim()) newErrors.complaint = "Keluhan wajib diisi";
     if (!formData.tnc) newErrors.tnc = "Anda harus menyetujui syarat & ketentuan";
 
@@ -77,16 +89,26 @@ export default function BookingPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      setShowSuccess(true);
-      setFormData({
-        name: "", whatsapp: "", email: "", address: "",
-        serviceType: "Datang ke Workshop", date: "", time: "",
-        device: "", brand: "", model: "", complaint: "", tnc: false
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setLoading(true);
+      setSubmitError('');
+      try {
+        const res = await api.post('/public/booking', formData);
+        setShowSuccess(true);
+        setTrackingInfo(res.data.data);
+        setFormData({
+          name: "", whatsapp: "", email: "", address: "",
+          serviceType: "Datang ke Workshop", date: "", time: "",
+          deviceTypeId: "", brandId: "", serviceCategoryId: "", deviceName: "", serialNumber: "", accessories: "", complaint: "", tnc: false
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err: any) {
+        setSubmitError(err.response?.data?.message || 'Gagal mengirim booking. Silakan coba lagi.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -112,26 +134,44 @@ export default function BookingPage() {
           {/* Main Form */}
           <div className="lg:col-span-2">
             
-            {showSuccess && (
-              <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-2xl flex items-start gap-4">
+            {showSuccess && trackingInfo && (
+              <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-2xl flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <CheckCircle className="w-8 h-8 text-green-500 shrink-0 mt-1" />
-                <div>
+                <div className="w-full">
                   <h3 className="text-xl font-bold text-green-900 mb-2">Booking Berhasil Dikirim!</h3>
-                  <p className="text-green-800">
-                    Tim Servis Cianjur telah menerima permintaan Anda dan akan segera menghubungi nomor WhatsApp Anda dalam beberapa menit ke depan.
+                  <p className="text-green-800 mb-4">
+                    Tim Servis Cianjur telah menerima permintaan Anda. Nomor WhatsApp Anda akan segera dihubungi oleh Admin kami.
                   </p>
-                  <button 
-                    onClick={() => setShowSuccess(false)}
-                    className="mt-4 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    Tutup
-                  </button>
+                  
+                  <div className="bg-white/60 p-4 rounded-xl border border-green-200 mb-4">
+                    <p className="text-sm text-green-700 mb-1 font-semibold">Nomor Booking Anda:</p>
+                    <p className="text-2xl font-black text-green-900 tracking-wider font-mono">{trackingInfo.bookingNumber}</p>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link href={`/track/${trackingInfo.bookingNumber}`} className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors inline-flex items-center justify-center gap-2">
+                      <Search className="w-4 h-4" />
+                      Lacak Status Servis
+                    </Link>
+                    <button 
+                      onClick={() => { setShowSuccess(false); setTrackingInfo(null); }}
+                      className="px-4 py-2 bg-white text-green-700 border border-green-300 font-medium rounded-lg hover:bg-green-50 transition-colors inline-flex items-center justify-center"
+                    >
+                      Booking Baru
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow border border-gray-200 p-8">
               
+              {submitError && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium">
+                  {submitError}
+                </div>
+              )}
+
               <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
                 <User className="w-5 h-5 text-red-600" />
                 Informasi Pelanggan
@@ -179,14 +219,12 @@ export default function BookingPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal *</label>
-                  <input type="date" name="date" value={formData.date} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border ${errors.date ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all`} />
-                  {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tanggal (Opsional)</label>
+                  <input type="date" name="date" value={formData.date} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all`} />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Jam *</label>
-                  <input type="time" name="time" value={formData.time} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border ${errors.time ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all`} />
-                  {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time}</p>}
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Jam (Opsional)</label>
+                  <input type="time" name="time" value={formData.time} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all`} />
                 </div>
               </div>
 
@@ -195,38 +233,45 @@ export default function BookingPage() {
                 Detail Perangkat
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Kategori Servis (Opsional)</label>
+                  <select name="serviceCategoryId" value={formData.serviceCategoryId} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all bg-white`}>
+                    <option value="">Pilih Kategori...</option>
+                    {serviceCategories.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Jenis Perangkat *</label>
-                  <select name="device" value={formData.device} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border ${errors.device ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all bg-white`}>
+                  <select name="deviceTypeId" value={formData.deviceTypeId} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border ${errors.deviceTypeId ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all bg-white`}>
                     <option value="">Pilih perangkat...</option>
-                    {DEVICETYPES.map(d => <option key={d} value={d}>{d}</option>)}
+                    {deviceTypes.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                   </select>
-                  {errors.device && <p className="text-red-500 text-xs mt-1">{errors.device}</p>}
+                  {errors.deviceTypeId && <p className="text-red-500 text-xs mt-1">{errors.deviceTypeId}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Merk *</label>
-                  <select name="brand" value={formData.brand} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border ${errors.brand ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all bg-white`}>
+                  <select name="brandId" value={formData.brandId} onChange={handleChange} className={`w-full px-4 py-3 rounded-xl border ${errors.brandId ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all bg-white`}>
                     <option value="">Pilih merk...</option>
-                    {BRANDS.map(b => <option key={b} value={b}>{b}</option>)}
+                    {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                   </select>
-                  {errors.brand && <p className="text-red-500 text-xs mt-1">{errors.brand}</p>}
+                  {errors.brandId && <p className="text-red-500 text-xs mt-1">{errors.brandId}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Model / Nama Unit (Opsional)</label>
+                  <input type="text" name="deviceName" value={formData.deviceName} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all" placeholder="Contoh: PLD32" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">No Seri (Opsional)</label>
+                  <input type="text" name="serialNumber" value={formData.serialNumber} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all" placeholder="SN123456" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Model / Seri (Opsional)</label>
-                  <input type="text" name="model" value={formData.model} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all" placeholder="Contoh: PLD32" />
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Kelengkapan Tambahan (Opsional)</label>
+                  <input type="text" name="accessories" value={formData.accessories} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all" placeholder="Remote, Kabel Power, dll" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Keluhan / Kerusakan *</label>
                   <textarea name="complaint" value={formData.complaint} onChange={handleChange} rows={4} className={`w-full px-4 py-3 rounded-xl border ${errors.complaint ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-red-600 transition-all`} placeholder="Deskripsikan masalah yang terjadi pada perangkat Anda"></textarea>
                   {errors.complaint && <p className="text-red-500 text-xs mt-1">{errors.complaint}</p>}
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Foto Perangkat (Opsional)</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-50 hover:border-red-400 cursor-pointer transition-all">
-                    <ImageIcon className="w-10 h-10 mb-2 text-gray-400" />
-                    <p className="text-sm font-medium">Klik untuk upload foto</p>
-                    <p className="text-xs mt-1">Maks 2MB (JPG, PNG)</p>
-                  </div>
                 </div>
               </div>
 
@@ -240,9 +285,9 @@ export default function BookingPage() {
                 {errors.tnc && <p className="text-red-500 text-xs mt-2 ml-8">{errors.tnc}</p>}
               </div>
 
-              <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg active:scale-[0.98]">
-                Ajukan Booking
-                <CheckCircle className="w-5 h-5" />
+              <button type="submit" disabled={loading} className="w-full bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold py-4 px-8 rounded-xl shadow-md hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg active:scale-[0.98]">
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+                {loading ? 'Mengirim Booking...' : 'Ajukan Booking'}
               </button>
             </form>
           </div>

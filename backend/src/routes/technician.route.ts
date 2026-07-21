@@ -6,8 +6,8 @@ import { technicianUpload } from '../middleware/upload.middleware.js';
 const router = Router();
 router.use(authenticate);
 
-router.get('/', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'CUSTOMER']), getAll);
-router.get('/:id', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'CUSTOMER']), getById);
+router.get('/', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'CUSTOMER', 'TEKNISI']), getAll);
+router.get('/:id', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'CUSTOMER', 'TEKNISI']), getById);
 router.post('/', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN']), technicianUpload.single('photo'), create);
 router.put('/:id', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN']), technicianUpload.single('photo'), update);
 router.delete('/:id', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN']), remove);

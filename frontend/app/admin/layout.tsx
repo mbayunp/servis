@@ -53,17 +53,21 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-slate-50 flex relative overflow-x-hidden">
       {/* Sidebar for Desktop & Mobile Overlay */}
-      <AdminSidebar
-        isOpen={mobileSidebarOpen}
-        onClose={() => setMobileSidebarOpen(false)}
-      />
+      <div className="print:hidden">
+        <AdminSidebar
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+        />
+      </div>
 
       {/* Main Content Container */}
-      <div className="flex-1 flex flex-col min-w-0 md:ml-64 transition-all duration-300">
-        <AdminNavbar
-          onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-        />
-        <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-w-0 md:ml-64 transition-all duration-300 print:ml-0 print:w-full">
+        <div className="print:hidden">
+          <AdminNavbar
+            onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+          />
+        </div>
+        <main className="flex-1 p-4 md:p-6 overflow-x-hidden print:p-0 print:w-full print:block">
           {children}
         </main>
       </div>
