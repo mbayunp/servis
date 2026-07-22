@@ -20,6 +20,7 @@ export class Booking extends Model {
   public estimatedFinish!: Date | null;
   public priority!: string;
   public status!: string;
+  public paymentStatus!: string | null;
   public warrantyDays!: number | null;
   public isHomeService!: boolean;
   public address!: string | null;
@@ -52,6 +53,7 @@ Booking.init(
     estimatedFinish: { type: DataTypes.DATE, allowNull: true, field: 'estimated_finish' },
     priority: { type: DataTypes.STRING, allowNull: false, defaultValue: 'NORMAL' }, // LOW, NORMAL, HIGH, URGENT
     status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'PENDING' }, // PENDING, VERIFIED, ASSIGNED, ON_PROGRESS, WAITING_APPROVAL, WAITING_SPAREPART, QC, FINISHED, DELIVERED, CANCELLED
+    paymentStatus: { type: DataTypes.STRING, allowNull: true, defaultValue: 'UNPAID', field: 'payment_status' },
     warrantyDays: { type: DataTypes.INTEGER, allowNull: true, field: 'warranty_days' },
     isHomeService: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false, field: 'is_home_service' },
     address: { type: DataTypes.TEXT, allowNull: true },

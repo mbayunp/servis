@@ -1,8 +1,30 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Receipt, DollarSign, CreditCard, TrendingUp, Search, Plus, RefreshCw, X, AlertCircle, CheckCircle2, FileText, Image as ImageIcon, Eye } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Receipt, DollarSign, CreditCard, TrendingUp, Search, Plus, RefreshCw, X, AlertCircle, Image as ImageIcon, ChevronDown, User, Smartphone, MessageSquare, Printer } from 'lucide-react';
 import api from '../../../lib/axios';
+import { RecordPaymentModal } from '../../../components/admin/finance/RecordPaymentModal';
+
+interface BookingSummaryItem {
+  id: string;
+  bookingNumber: string;
+  status?: string;
+  deviceName?: string;
+  customerName?: string;
+  phoneNumber?: string;
+  address?: string;
+  estimatedCost?: number | string;
+  customer?: {
+    fullName?: string;
+    name?: string;
+    phoneNumber?: string;
+    phone?: string;
+    address?: string;
+  };
+  brand?: {
+    name?: string;
+  };
+}
 
 interface InvoiceItem {
   id: string;
@@ -14,8 +36,9 @@ interface InvoiceItem {
   discount: number;
   tax: number;
   total: number;
-  status: 'Draft' | 'Waiting Payment' | 'Paid' | 'Cancelled';
+  status: 'Draft' | 'Waiting Payment' | 'Paid' | 'Cancelled' | string;
   createdAt: string;
+  booking?: BookingSummaryItem;
 }
 
 interface PaymentItem {
@@ -25,15 +48,18 @@ interface PaymentItem {
   paymentMethod: string;
   amount: number;
   paymentDate: string;
-  status: 'Pending' | 'Paid' | 'Failed';
+  status: string;
   proofImage: string | null;
   createdAt: string;
+  invoice?: InvoiceItem;
+  creator?: { fullName?: string; name?: string; username?: string; email?: string };
 }
 
 export default function FinancePage() {
   const [activeTab, setActiveTab] = useState<'invoices' | 'payments' | 'report'>('invoices');
   const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
   const [payments, setPayments] = useState<PaymentItem[]>([]);
+  const [bookingList, setBookingList] = useState<BookingSummaryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
@@ -50,18 +76,42 @@ export default function FinancePage() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
 
+  // Booking Searchable Dropdown State
+  const [bookingSearch, setBookingSearch] = useState('');
+  const [isBookingDropdownOpen, setIsBookingDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Record Payment Modal State
+  const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState<InvoiceItem | null>(null);
+  const [isRecordPaymentOpen, setIsRecordPaymentOpen] = useState(false);
+
   // Payment Verification Modal State
   const [selectedProofImage, setSelectedProofImage] = useState<string | null>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsBookingDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [invRes, payRes] = await Promise.all([
+      const [invRes, payRes, bookRes] = await Promise.all([
         api.get('/invoices').catch(() => ({ data: { data: [] } })),
-        api.get('/payments').catch(() => ({ data: { data: [] } }))
+        api.get('/payments').catch(() => ({ data: { data: [] } })),
+        api.get('/bookings?limit=500').catch(() => ({ data: { data: [] } }))
       ]);
       setInvoices(invRes.data?.data || []);
       setPayments(payRes.data?.data || []);
+      setBookingList(bookRes.data?.data || []);
     } catch (error) {
       console.error('Failed to fetch finance data:', error);
     } finally {
@@ -75,6 +125,10 @@ export default function FinancePage() {
 
   const handleCreateInvoice = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!invoiceForm.bookingId) {
+      setFormError('Silakan pilih booking terlebih dahulu');
+      return;
+    }
     setFormLoading(true);
     setFormError('');
 
@@ -82,10 +136,44 @@ export default function FinancePage() {
       await api.post('/invoices', invoiceForm);
       setIsInvoiceModalOpen(false);
       fetchData();
-    } catch (err: any) {
-      setFormError(err.response?.data?.message || 'Gagal membuat invoice');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setFormError(errorObj.response?.data?.message || 'Gagal membuat invoice');
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleSendWhatsApp = (inv: InvoiceItem) => {
+    const targetBookingId = inv.bookingId || inv.booking?.id;
+    const booking = inv.booking || bookingList.find(b => b.id === targetBookingId);
+    const phoneRaw = booking?.customer?.phoneNumber || booking?.phoneNumber || '';
+    const phone = phoneRaw.replace(/\D/g, '');
+    const formattedPhone = phone.startsWith('0') ? '62' + phone.slice(1) : phone;
+    const customerName = booking?.customer?.fullName || booking?.customerName || 'Pelanggan';
+
+    const text = `Halo ${customerName}, berikut invoice tagihan servis perbaikan Anda di Servis Cianjur:\n\n` +
+      `• No. Invoice: ${inv.invoiceNumber}\n` +
+      `• Perangkat: ${booking?.deviceName || 'Perangkat Servis'}\n` +
+      `• Biaya Jasa: ${formatRupiah(inv.serviceCost || 0)}\n` +
+      `• Biaya Sparepart: ${formatRupiah(inv.sparepartCost || 0)}\n` +
+      `• Total Tagihan: ${formatRupiah(inv.total || 0)}\n` +
+      `• Status: ${inv.status}\n\n` +
+      `Mohon lakukan konfirmasi/pembayaran. Terima kasih!`;
+
+    if (formattedPhone) {
+      window.open(`https://wa.me/${formattedPhone}?text=${encodeURIComponent(text)}`, '_blank');
+    } else {
+      alert(`Nomor WhatsApp tidak ditemukan untuk booking ini. Rincian invoice:\n\n${text}`);
+    }
+  };
+
+  const handlePrintInvoice = (inv: InvoiceItem) => {
+    const targetBookingId = inv.bookingId || inv.booking?.id;
+    if (targetBookingId) {
+      window.open(`/admin/booking/${targetBookingId}/receipt`, '_blank');
+    } else {
+      alert('Booking ID tidak ditemukan untuk invoice ini.');
     }
   };
 
@@ -93,12 +181,64 @@ export default function FinancePage() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
   };
 
+  const formatRupiahInput = (val: number | string) => {
+    if (val === undefined || val === null || val === '') return '0';
+    let num: number;
+    if (typeof val === 'number') {
+      num = Math.round(val);
+    } else {
+      const parsed = Number(val);
+      if (!isNaN(parsed)) {
+        num = Math.round(parsed);
+      } else {
+        const digits = val.replace(/\D/g, '');
+        num = digits ? parseInt(digits, 10) : 0;
+      }
+    }
+    if (isNaN(num) || num === 0) return '0';
+    return num.toLocaleString('id-ID');
+  };
+
+  const parseRupiahInput = (str: string): number => {
+    const digits = str.replace(/\D/g, '');
+    return digits ? parseInt(digits, 10) : 0;
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    const s = (status || '').toUpperCase();
+    if (s === 'PAID') return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+    if (s === 'WAITING PAYMENT' || s === 'WAITING_PAYMENT' || s === 'UNPAID') return 'bg-amber-100 text-amber-700 border border-amber-200';
+    if (s === 'DRAFT') return 'bg-slate-100 text-slate-700 border border-slate-200';
+    if (s === 'CANCELLED' || s === 'REJECTED') return 'bg-red-100 text-red-700 border border-red-200';
+    return 'bg-slate-100 text-slate-700 border border-slate-200';
+  };
+
+  const filteredBookings = bookingList.filter((b) => {
+    if (!bookingSearch.trim()) return true;
+    const q = bookingSearch.toLowerCase();
+    const bookingNo = (b.bookingNumber || '').toLowerCase();
+    const customerName = (b.customer?.fullName || b.customerName || '').toLowerCase();
+    const customerPhone = (b.customer?.phoneNumber || b.phoneNumber || '').toLowerCase();
+    const device = (b.deviceName || '').toLowerCase();
+    const brand = (b.brand?.name || '').toLowerCase();
+    const status = (b.status || '').toLowerCase();
+
+    return (
+      bookingNo.includes(q) ||
+      customerName.includes(q) ||
+      customerPhone.includes(q) ||
+      device.includes(q) ||
+      brand.includes(q) ||
+      status.includes(q)
+    );
+  });
+
   const totalPaid = invoices
-    .filter(i => i.status === 'Paid')
+    .filter(i => (i.status || '').toUpperCase() === 'PAID')
     .reduce((sum, i) => sum + Number(i.total || 0), 0);
 
   const totalWaiting = invoices
-    .filter(i => i.status === 'Waiting Payment')
+    .filter(i => ['UNPAID', 'DRAFT', 'WAITING PAYMENT', 'WAITING_PAYMENT', 'PENDING'].includes((i.status || '').toUpperCase()))
     .reduce((sum, i) => sum + Number(i.total || 0), 0);
 
   return (
@@ -110,11 +250,13 @@ export default function FinancePage() {
             <Receipt className="h-6 w-6 text-blue-600" />
             Manajemen Keuangan (Finance)
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Kelola Invoice, Verifikasi Pembayaran, Cashflow, dan Ringkasan Laporan.</p>
+          <p className="text-sm text-slate-500 mt-1">Kelola Lifecycle Invoice (Draft &rarr; Unpaid &rarr; Paid), Verifikasi Pembayaran, dan Cashflow.</p>
         </div>
         <button
           onClick={() => {
             setInvoiceForm({ bookingId: '', serviceCost: 0, sparepartCost: 0, discount: 0, tax: 0, notes: '' });
+            setBookingSearch('');
+            setIsBookingDropdownOpen(false);
             setIsInvoiceModalOpen(true);
           }}
           className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition-all cursor-pointer"
@@ -131,7 +273,7 @@ export default function FinancePage() {
             <TrendingUp className="h-6 w-6" />
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Pendapatan (Paid)</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Pendapatan (PAID)</div>
             <div className="text-2xl font-bold text-slate-900">{formatRupiah(totalPaid)}</div>
           </div>
         </div>
@@ -206,7 +348,7 @@ export default function FinancePage() {
             </div>
             <button
               onClick={fetchData}
-              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg"
+              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -234,6 +376,7 @@ export default function FinancePage() {
                     <th className="px-4 py-3">Total Akhir</th>
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Tanggal</th>
+                    <th className="px-4 py-3 text-right">AKSI</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -248,18 +391,52 @@ export default function FinancePage() {
                         <td className="px-4 py-3 text-slate-700">{formatRupiah(inv.sparepartCost || 0)}</td>
                         <td className="px-4 py-3 font-bold text-slate-900">{formatRupiah(inv.total || 0)}</td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            inv.status === 'Paid' 
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                              : inv.status === 'Waiting Payment'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-slate-100 text-slate-700 border border-slate-200'
-                          }`}>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusBadgeClass(inv.status)}`}>
                             {inv.status}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-slate-500 text-xs">
                           {new Date(inv.createdAt).toLocaleDateString('id-ID')}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Catat Pembayaran button */}
+                            {['DRAFT', 'UNPAID', 'WAITING PAYMENT', 'WAITING_PAYMENT', 'PENDING'].includes((inv.status || '').toUpperCase()) && (
+                              <button
+                                onClick={() => {
+                                  setSelectedInvoiceForPayment(inv);
+                                  setIsRecordPaymentOpen(true);
+                                }}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-all cursor-pointer"
+                                title="Catat Pembayaran"
+                              >
+                                <CreditCard className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Bayar</span>
+                              </button>
+                            )}
+
+                            {/* Kirim WA button */}
+                            {['DRAFT', 'UNPAID', 'WAITING PAYMENT', 'WAITING_PAYMENT', 'PENDING'].includes((inv.status || '').toUpperCase()) && (
+                              <button
+                                onClick={() => handleSendWhatsApp(inv)}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg transition-all cursor-pointer"
+                                title="Kirim WA"
+                              >
+                                <MessageSquare className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Kirim WA</span>
+                              </button>
+                            )}
+
+                            {/* Cetak Invoice button */}
+                            <button
+                              onClick={() => handlePrintInvoice(inv)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 rounded-lg transition-all cursor-pointer"
+                              title="Cetak Invoice / Nota"
+                            >
+                              <Printer className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Cetak</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -284,22 +461,34 @@ export default function FinancePage() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-100">
                   <tr>
-                    <th className="px-4 py-3">No. Transaksi</th>
+                    <th className="px-4 py-3">No. Invoice</th>
+                    <th className="px-4 py-3">Tanggal Bayar</th>
                     <th className="px-4 py-3">Metode</th>
                     <th className="px-4 py-3">Nominal</th>
+                    <th className="px-4 py-3">Penerima (Admin)</th>
                     <th className="px-4 py-3">Bukti Bayar</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Tanggal</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {payments
-                    .filter(p => p.paymentNumber.toLowerCase().includes(search.toLowerCase()))
+                    .filter(p => (p.paymentNumber || '').toLowerCase().includes(search.toLowerCase()) || (p.invoice?.invoiceNumber || '').toLowerCase().includes(search.toLowerCase()))
                     .map((pay) => (
                       <tr key={pay.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="px-4 py-3 font-semibold text-slate-900">{pay.paymentNumber}</td>
-                        <td className="px-4 py-3 text-slate-700 font-medium uppercase text-xs">{pay.paymentMethod}</td>
-                        <td className="px-4 py-3 font-bold text-emerald-600">{formatRupiah(pay.amount)}</td>
+                        <td className="px-4 py-3 font-semibold text-blue-600">
+                          {pay.invoice?.invoiceNumber || pay.paymentNumber}
+                        </td>
+                        <td className="px-4 py-3 text-slate-500 text-xs">
+                          {new Date(pay.paymentDate || pay.createdAt).toLocaleDateString('id-ID')}
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 font-medium uppercase text-xs">
+                          {pay.paymentMethod}
+                        </td>
+                        <td className="px-4 py-3 font-bold text-emerald-600">
+                          {formatRupiah(pay.amount)}
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 text-xs font-medium">
+                          {pay.creator?.username || pay.creator?.email || 'Admin Workshop'}
+                        </td>
                         <td className="px-4 py-3">
                           {pay.proofImage ? (
                             <button
@@ -311,18 +500,6 @@ export default function FinancePage() {
                           ) : (
                             <span className="text-slate-400 text-xs">-</span>
                           )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                            pay.status === 'Paid' 
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
-                              : 'bg-amber-50 text-amber-700 border border-amber-200'
-                          }`}>
-                            {pay.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-slate-500 text-xs">
-                          {new Date(pay.paymentDate).toLocaleDateString('id-ID')}
                         </td>
                       </tr>
                     ))}
@@ -371,65 +548,234 @@ export default function FinancePage() {
 
             {formError && (
               <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <AlertCircle className="h-4 w-4 shrink-0" />
                 {formError}
               </div>
             )}
 
             <form onSubmit={handleCreateInvoice} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">ID Booking *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Masukkan ID Booking..."
-                  value={invoiceForm.bookingId}
-                  onChange={(e) => setInvoiceForm({ ...invoiceForm, bookingId: e.target.value })}
-                  className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Pilih Booking *</label>
+                
+                {(() => {
+                  const selectedBooking = bookingList.find(b => b.id === invoiceForm.bookingId);
+                  
+                  if (selectedBooking) {
+                    return (
+                      <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl relative flex flex-col gap-1">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900 text-sm">{selectedBooking.bookingNumber}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getStatusBadgeClass(selectedBooking.status || '')}`}>
+                              {selectedBooking.status}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setInvoiceForm({ ...invoiceForm, bookingId: '' });
+                              setBookingSearch('');
+                              setIsBookingDropdownOpen(true);
+                            }}
+                            className="text-xs font-semibold text-red-600 hover:text-red-800 bg-white border border-red-200 hover:bg-red-50 px-2 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                            Ganti Booking
+                          </button>
+                        </div>
+
+                        <div className="text-xs text-slate-600 space-y-1 mt-1">
+                          <div className="flex items-center gap-1.5 font-medium text-slate-800">
+                            <User className="h-3.5 w-3.5 text-slate-400" />
+                            <span>{selectedBooking.customer?.fullName || selectedBooking.customerName || 'Pelanggan'}</span>
+                            {selectedBooking.customer?.phoneNumber && (
+                              <span className="text-slate-400">({selectedBooking.customer.phoneNumber})</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-slate-500">
+                            <Smartphone className="h-3.5 w-3.5 text-slate-400" />
+                            <span>{selectedBooking.brand?.name ? `${selectedBooking.brand.name} - ` : ''}{selectedBooking.deviceName}</span>
+                          </div>
+                          {selectedBooking.estimatedCost !== undefined && selectedBooking.estimatedCost !== null && (
+                            <div className="text-xs text-blue-700 font-semibold pt-1 border-t border-blue-100">
+                              Estimasi Biaya: {formatRupiah(Number(selectedBooking.estimatedCost))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="relative" ref={dropdownRef}>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                        <input
+                          type="text"
+                          placeholder="Cari No. Booking, Customer, HP, Perangkat..."
+                          value={bookingSearch}
+                          onFocus={() => setIsBookingDropdownOpen(true)}
+                          onChange={(e) => {
+                            setBookingSearch(e.target.value);
+                            setIsBookingDropdownOpen(true);
+                          }}
+                          className="w-full pl-9 pr-8 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+                        />
+                        <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-transform duration-200 pointer-events-none ${isBookingDropdownOpen ? 'rotate-180' : ''}`} />
+                      </div>
+
+                      {isBookingDropdownOpen && (
+                        <div className="absolute left-0 right-0 mt-1 z-50 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden max-h-64 flex flex-col animate-in fade-in duration-100">
+                          <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 text-[11px] font-semibold text-slate-500 flex justify-between items-center">
+                            <span>DAFTAR BOOKING ({bookingList.length})</span>
+                            <span>{filteredBookings.length} cocok</span>
+                          </div>
+
+                          <div className="overflow-y-auto divide-y divide-slate-100 max-h-56">
+                            {filteredBookings.length === 0 ? (
+                              <div className="p-4 text-center text-xs text-slate-500">
+                                Tidak ada booking yang sesuai dengan pencarian &quot;{bookingSearch}&quot;
+                              </div>
+                            ) : (
+                              filteredBookings.map((b) => (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setInvoiceForm({
+                                      ...invoiceForm,
+                                      bookingId: b.id,
+                                      serviceCost: b.estimatedCost ? Number(b.estimatedCost) : invoiceForm.serviceCost
+                                    });
+                                    setIsBookingDropdownOpen(false);
+                                    setFormError('');
+                                  }}
+                                  className="w-full text-left p-3 hover:bg-blue-50/60 transition-colors flex items-start justify-between gap-2 cursor-pointer"
+                                >
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-semibold text-slate-900 text-xs">{b.bookingNumber}</span>
+                                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${getStatusBadgeClass(b.status || '')}`}>
+                                        {b.status}
+                                      </span>
+                                    </div>
+                                    <div className="text-xs text-slate-700 font-medium">
+                                      {b.customer?.fullName || b.customerName || 'Pelanggan'}
+                                      {b.customer?.phoneNumber ? ` • ${b.customer.phoneNumber}` : ''}
+                                    </div>
+                                    <div className="text-[11px] text-slate-500">
+                                      {b.brand?.name ? `${b.brand.name} - ` : ''}{b.deviceName || 'Perangkat'}
+                                    </div>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <div className="text-xs font-semibold text-slate-900">
+                                      {b.estimatedCost ? formatRupiah(Number(b.estimatedCost)) : '-'}
+                                    </div>
+                                  </div>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Biaya Jasa Servis (Rp)</label>
-                  <input
-                    type="number"
-                    value={invoiceForm.serviceCost}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, serviceCost: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Biaya Jasa Servis</label>
+                  <div className="relative flex rounded-lg border border-slate-200 bg-slate-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white overflow-hidden transition-all">
+                    <span className="px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 border-r border-slate-200 flex items-center select-none">
+                      Rp
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatRupiahInput(invoiceForm.serviceCost)}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, serviceCost: parseRupiahInput(e.target.value) })}
+                      className="w-full px-3 py-2 text-sm bg-transparent focus:outline-none font-semibold text-slate-900 text-right"
+                      placeholder="0"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Biaya Sparepart (Rp)</label>
-                  <input
-                    type="number"
-                    value={invoiceForm.sparepartCost}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, sparepartCost: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Biaya Sparepart</label>
+                  <div className="relative flex rounded-lg border border-slate-200 bg-slate-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white overflow-hidden transition-all">
+                    <span className="px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 border-r border-slate-200 flex items-center select-none">
+                      Rp
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatRupiahInput(invoiceForm.sparepartCost)}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, sparepartCost: parseRupiahInput(e.target.value) })}
+                      className="w-full px-3 py-2 text-sm bg-transparent focus:outline-none font-semibold text-slate-900 text-right"
+                      placeholder="0"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Diskon (Rp)</label>
-                  <input
-                    type="number"
-                    value={invoiceForm.discount}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, discount: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Diskon</label>
+                  <div className="relative flex rounded-lg border border-slate-200 bg-slate-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white overflow-hidden transition-all">
+                    <span className="px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 border-r border-slate-200 flex items-center select-none">
+                      Rp
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatRupiahInput(invoiceForm.discount)}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, discount: parseRupiahInput(e.target.value) })}
+                      className="w-full px-3 py-2 text-sm bg-transparent focus:outline-none font-semibold text-slate-900 text-right"
+                      placeholder="0"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">PPN (Rp)</label>
-                  <input
-                    type="number"
-                    value={invoiceForm.tax}
-                    onChange={(e) => setInvoiceForm({ ...invoiceForm, tax: Number(e.target.value) })}
-                    className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">PPN</label>
+                  <div className="relative flex rounded-lg border border-slate-200 bg-slate-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white overflow-hidden transition-all">
+                    <span className="px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 border-r border-slate-200 flex items-center select-none">
+                      Rp
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatRupiahInput(invoiceForm.tax)}
+                      onChange={(e) => setInvoiceForm({ ...invoiceForm, tax: parseRupiahInput(e.target.value) })}
+                      className="w-full px-3 py-2 text-sm bg-transparent focus:outline-none font-semibold text-slate-900 text-right"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Calculation Breakdown */}
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                <div className="flex justify-between text-slate-600">
+                  <span>Subtotal (Jasa + Sparepart):</span>
+                  <span className="font-semibold text-slate-800">{formatRupiah(invoiceForm.serviceCost + invoiceForm.sparepartCost)}</span>
+                </div>
+                {invoiceForm.discount > 0 && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>Potongan Diskon:</span>
+                    <span className="font-semibold">-{formatRupiah(invoiceForm.discount)}</span>
+                  </div>
+                )}
+                {invoiceForm.tax > 0 && (
+                  <div className="flex justify-between text-amber-600 font-medium">
+                    <span>PPN Tambahan:</span>
+                    <span className="font-semibold">+{formatRupiah(invoiceForm.tax)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-slate-900 font-bold pt-2 border-t border-slate-200 text-sm">
+                  <span>Total Tagihan Invoice:</span>
+                  <span className="text-blue-600 text-base">{formatRupiah(Math.max(0, invoiceForm.serviceCost + invoiceForm.sparepartCost - invoiceForm.discount + invoiceForm.tax))}</span>
                 </div>
               </div>
 
@@ -454,6 +800,19 @@ export default function FinancePage() {
         </div>
       )}
 
+      {/* Record Payment Modal */}
+      <RecordPaymentModal
+        isOpen={isRecordPaymentOpen}
+        onClose={() => {
+          setIsRecordPaymentOpen(false);
+          setSelectedInvoiceForPayment(null);
+        }}
+        invoice={selectedInvoiceForPayment}
+        onSuccess={() => {
+          fetchData();
+        }}
+      />
+
       {/* Proof Image Modal */}
       {selectedProofImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
@@ -465,6 +824,7 @@ export default function FinancePage() {
               </button>
             </div>
             <div className="w-full h-64 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={selectedProofImage} alt="Bukti Bayar" className="max-h-full object-contain" />
             </div>
           </div>

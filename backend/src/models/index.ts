@@ -22,11 +22,14 @@ export const setupAssociations = () => {
 
   // Booking -> Invoice
   Booking.hasMany(Invoice, { foreignKey: 'bookingId', as: 'invoices' });
+  Booking.hasOne(Invoice, { foreignKey: 'bookingId', as: 'invoice' });
   Invoice.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 
   // Invoice -> Payment
   Invoice.hasMany(Payment, { foreignKey: 'invoiceId', as: 'payments' });
   Payment.belongsTo(Invoice, { foreignKey: 'invoiceId', as: 'invoice' });
+  User.hasMany(Payment, { foreignKey: 'createdBy', as: 'recordedPayments' });
+  Payment.belongsTo(User, { foreignKey: 'createdBy', as: 'creator' });
   // Role & Permission (Many to Many)
   Role.belongsToMany(Permission, { through: RolePermission, as: 'permissions', foreignKey: 'roleId', otherKey: 'permissionId' });
   Permission.belongsToMany(Role, { through: RolePermission, as: 'roles', foreignKey: 'permissionId', otherKey: 'roleId' });
@@ -78,5 +81,7 @@ export {
   Booking,
   BookingBefore,
   BookingAfter,
-  TrackingHistory
+  TrackingHistory,
+  Invoice,
+  Payment
 };

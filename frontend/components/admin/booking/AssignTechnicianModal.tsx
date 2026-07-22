@@ -45,43 +45,58 @@ export function AssignTechnicianModal({ isOpen, onClose, booking, onSuccess }: A
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} aria-hidden="true"></div>
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
-        <div className="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
-          <form onSubmit={handleSubmit}>
-            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 sm:mx-0 sm:h-10 sm:w-10">
-                  <Wrench className="h-6 w-6 text-purple-600" aria-hidden="true" />
-                </div>
-                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Assign Teknisi</h3>
-                  <div className="mt-2 text-sm text-gray-500 mb-4">
-                    Booking: <span className="font-semibold">{String(booking?.bookingNumber || '-')}</span>
-                  </div>
-                  
-                  <div>
-                    <select value={technicianId} onChange={e => setTechnicianId(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md border">
-                      <option value="">-- Pilih Teknisi --</option>
-                      {technicians.map((t: { id: string | number, name: string, specialization?: string }) => <option key={t.id} value={t.id}>{t.name} (Ahli: {t.specialization || '-'})</option>)}
-                    </select>
-                  </div>
-                </div>
-              </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity overflow-y-auto">
+      <div className="fixed inset-0" onClick={onClose}></div>
+
+      <div className="relative z-50 bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 my-8">
+        <form onSubmit={handleSubmit}>
+          <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-purple-100 text-purple-600 shrink-0">
+              <Wrench className="h-5 w-5" />
             </div>
-            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
-              <button type="submit" disabled={loading} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:bg-purple-300">
-                {loading ? 'Menyimpan...' : 'Terapkan Teknisi'}
-              </button>
-              <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                Batal
-              </button>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Assign Teknisi</h3>
+              <p className="text-xs text-slate-500">
+                Booking: <span className="font-mono font-bold text-slate-800">{String(booking?.bookingNumber || '-')}</span>
+              </p>
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div className="py-4 space-y-3">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Pilih Teknisi Penanggung Jawab
+            </label>
+            <select
+              value={technicianId}
+              onChange={e => setTechnicianId(e.target.value)}
+              className="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+            >
+              <option value="">-- Pilih Teknisi --</option>
+              {technicians.map((t: { id: string | number, name: string, specialization?: string }) => (
+                <option key={t.id} value={t.id}>
+                  {t.name} (Spesialis: {t.specialization || '-'})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-5 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 rounded-xl shadow-md transition cursor-pointer"
+            >
+              {loading ? 'Menyimpan...' : 'Terapkan Teknisi'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

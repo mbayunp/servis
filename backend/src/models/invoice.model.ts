@@ -23,7 +23,7 @@ export class Invoice extends Model {
 Invoice.init(
   {
     id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    bookingId: { type: DataTypes.UUID, allowNull: false, field: 'booking_id' },
+    bookingId: { type: DataTypes.UUID, allowNull: false, field: 'booking_id', references: { model: 'bookings', key: 'id' } },
     invoiceNumber: { type: DataTypes.STRING, allowNull: false, unique: true, field: 'invoice_number' },
     subtotal: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
     serviceCost: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0, field: 'service_cost' },

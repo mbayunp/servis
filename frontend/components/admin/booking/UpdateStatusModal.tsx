@@ -12,10 +12,12 @@ interface UpdateStatusModalProps {
 export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: UpdateStatusModalProps) {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
+  const [diagnosis, setDiagnosis] = useState('');
 
   useEffect(() => {
     if (isOpen && booking) {
       setStatus(String(booking?.status || 'Pending'));
+      setDiagnosis(String(booking?.diagnosis || ''));
     }
   }, [isOpen, booking]);
 
@@ -27,7 +29,7 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
     
     setLoading(true);
     try {
-      await api.patch(`/bookings/${booking.id}/status`, { status });
+      await api.patch(`/bookings/${booking.id}/status`, { status, diagnosis });
       onSuccess();
       onClose();
     } catch (error) {
@@ -39,46 +41,75 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose} aria-hidden="true"></div>
-        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        
-        <div className="relative z-10 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
-          <form onSubmit={handleSubmit}>
-            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-              <div className="sm:flex sm:items-start">
-                <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 sm:mx-0 sm:h-10 sm:w-10">
-                  <Activity className="h-6 w-6 text-emerald-600" aria-hidden="true" />
-                </div>
-                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">Ubah Status Booking</h3>
-                  <div className="mt-2 text-sm text-gray-500 mb-4">
-                    Booking: <span className="font-semibold">{String(booking?.bookingNumber || '-')}</span>
-                  </div>
-                  
-                  <div>
-                    <select value={status} onChange={e => setStatus(e.target.value)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-md border">
-                      <option value="Pending">Pending</option>
-                      <option value="Checking">Checking</option>
-                      <option value="Repairing">Repairing</option>
-                      <option value="Finished">Finished</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity overflow-y-auto">
+      <div className="fixed inset-0" onClick={onClose}></div>
+
+      <div className="relative z-50 bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4 my-8">
+        <form onSubmit={handleSubmit}>
+          <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-emerald-100 text-emerald-600 shrink-0">
+              <Activity className="h-5 w-5" />
             </div>
-            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
-              <button type="submit" disabled={loading} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:bg-emerald-300">
-                {loading ? 'Menyimpan...' : 'Simpan Status'}
-              </button>
-              <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                Batal
-              </button>
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Ubah Status Booking</h3>
+              <p className="text-xs text-slate-500">
+                Booking: <span className="font-mono font-bold text-slate-800">{String(booking?.bookingNumber || '-')}</span>
+              </p>
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                Status Pengerjaan
+              </label>
+              <select
+                value={status}
+                onChange={e => setStatus(e.target.value)}
+                className="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+              >
+                <option value="Pending">Pending</option>
+                <option value="Checking">Checking (Pemeriksaan)</option>
+                <option value="Waiting Approval">Waiting Approval (Menunggu Persetujuan)</option>
+                <option value="Repairing">Repairing (Proses Perbaikan)</option>
+                <option value="QC">Quality Control (QC)</option>
+                <option value="Finished">Finished (Servis Selesai)</option>
+                <option value="Picked Up">Picked Up (Sudah Diambil)</option>
+                <option value="Cancelled">Cancelled (Dibatalkan)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                Catatan / Hasil Diagnosis Teknisi
+              </label>
+              <textarea
+                rows={3}
+                value={diagnosis}
+                onChange={e => setDiagnosis(e.target.value)}
+                placeholder="Contoh: Jalur VCC konslet, IC Power mati total, butuh penggantian part..."
+                className="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-sans"
+              />
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-5 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 rounded-xl shadow-md transition cursor-pointer"
+            >
+              {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

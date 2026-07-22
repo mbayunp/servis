@@ -14,7 +14,49 @@ router.patch('/:id/status', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI
 router.delete('/:id', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN']), remove);
 
 // Upload routes
-router.post('/:id/photos/before', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI']), (req, _res, next) => { req.body.type = 'before'; next(); }, beforeUpload.single('photo'), uploadPhoto);
-router.post('/:id/photos/after', authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI']), (req, _res, next) => { req.body.type = 'after'; next(); }, afterUpload.single('photo'), uploadPhoto);
+router.post(
+  '/:id/photos/before',
+  authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI']),
+  beforeUpload.single('photo'),
+  (req, _res, next) => {
+    if (req.body) req.body.type = 'before';
+    next();
+  },
+  uploadPhoto
+);
+
+router.post(
+  '/:id/photos/after',
+  authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI']),
+  afterUpload.single('photo'),
+  (req, _res, next) => {
+    if (req.body) req.body.type = 'after';
+    next();
+  },
+  uploadPhoto
+);
+
+router.post(
+  '/:id/photos/:type',
+  authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI']),
+  (req, res, next) => {
+    const photoType = String(req.params.type || 'before').toLowerCase();
+    const uploader = photoType === 'after' ? afterUpload : beforeUpload;
+    uploader.single('photo')(req, res, (err) => {
+      if (err) return next(err);
+      if (req.body) req.body.type = photoType;
+      next();
+    });
+  },
+  uploadPhoto
+);
+
+router.post(
+  '/:id/photos',
+  authorize(['SUPER_ADMIN', 'OWNER', 'ADMIN', 'TEKNISI']),
+  beforeUpload.single('photo'),
+  uploadPhoto
+);
 
 export default router;
+

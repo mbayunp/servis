@@ -9,6 +9,7 @@ import ServiceCategory from '../models/service-category.model.js';
 import BookingBefore from '../models/bookingBefore.model.js';
 import BookingAfter from '../models/bookingAfter.model.js';
 import TrackingHistory from '../models/trackingHistory.model.js';
+import Invoice from '../models/invoice.model.js';
 
 const includeModels = [
   { model: Customer, as: 'customer' },
@@ -18,7 +19,9 @@ const includeModels = [
   { model: ServiceCategory, as: 'serviceCategory' },
   { model: BookingBefore, as: 'beforePhotos' },
   { model: BookingAfter, as: 'afterPhotos' },
-  { model: TrackingHistory, as: 'histories' }
+  { model: TrackingHistory, as: 'histories' },
+  { model: Invoice, as: 'invoice' },
+  { model: Invoice, as: 'invoices' }
 ];
 
 const sanitizeBookingPayload = (body: any) => {
@@ -155,14 +158,21 @@ export const updateStatus = async (req: Request, res: Response) => {
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     
     const newStatus = req.body.status;
-    await data.update({ status: newStatus });
+    const diagnosis = req.body.diagnosis || req.body.diagnosisNotes;
+
+    const updatePayload: any = { status: newStatus };
+    if (diagnosis !== undefined && diagnosis !== null) {
+      updatePayload.diagnosis = diagnosis;
+    }
+
+    await data.update(updatePayload);
 
     // History Titles Mapping
     const titleMap: Record<string, { title: string; desc: string }> = {
       'Pending': { title: 'Booking Didaftarkan', desc: 'Menunggu penerimaan dari bengkel' },
       'Received': { title: 'Barang Diterima', desc: 'Perangkat telah diterima oleh admin di workshop' },
-      'Checking': { title: 'Sedang Pemeriksaan', desc: 'Teknisi sedang membongkar dan memeriksa masalah perangkat' },
-      'Waiting Approval': { title: 'Menunggu Persetujuan Estimasi', desc: 'Estimasi rincian biaya telah dikirimkan ke pelanggan' },
+      'Checking': { title: 'Sedang Pemeriksaan', desc: diagnosis ? `Catatan Diagnosa: ${diagnosis}` : 'Teknisi sedang membongkar dan memeriksa masalah perangkat' },
+      'Waiting Approval': { title: 'Menunggu Persetujuan Estimasi', desc: diagnosis ? `Hasil Diagnosa: ${diagnosis}` : 'Estimasi rincian biaya telah dikirimkan ke pelanggan' },
       'Repairing': { title: 'Proses Perbaikan', desc: 'Teknisi sedang melakukan perbaikan / penggantian sparepart' },
       'QC': { title: 'Quality Control (QC)', desc: 'Pengujian fungsi dan kualitas setelah perbaikan' },
       'Finished': { title: 'Servis Selesai', desc: 'Perangkat selesai diperbaiki dan siap diambil' },
@@ -170,7 +180,10 @@ export const updateStatus = async (req: Request, res: Response) => {
       'Cancelled': { title: 'Dibatalkan', desc: 'Pemesanan perbaikan telah dibatalkan' }
     };
 
-    const statusInfo = titleMap[newStatus] || { title: `Status: ${newStatus}`, desc: `Status pengerjaan diperbarui menjadi ${newStatus}` };
+    const statusInfo = titleMap[newStatus] || {
+      title: `Status: ${newStatus}`,
+      desc: diagnosis ? `Catatan Diagnosa: ${diagnosis}` : `Status pengerjaan diperbarui menjadi ${newStatus}`
+    };
 
     await TrackingHistory.create({
       bookingId: data.id,
@@ -186,17 +199,18 @@ export const updateStatus = async (req: Request, res: Response) => {
 
 export const uploadPhoto = async (req: Request, res: Response) => {
   try {
-    const { type } = req.body; // 'before' or 'after'
+    const rawType = req.body?.type || req.params?.type || 'BEFORE';
+    const type = String(rawType).toLowerCase();
     const bookingId = req.params.id as string;
     const booking = await Booking.findByPk(bookingId);
     
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
-    if (!req.file) return res.status(400).json({ success: false, message: 'No image uploaded' });
+    if (!req.file) return res.status(400).json({ success: false, message: 'File foto tidak ditemukan' });
 
     const photoData = {
       bookingId,
       photoUrl: `/uploads/${type}/${req.file.filename}`,
-      notes: req.body.notes || '',
+      notes: req.body?.notes || '',
       uploadedBy: (req as any).user?.id || null
     };
 

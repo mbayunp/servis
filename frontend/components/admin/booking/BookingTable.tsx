@@ -1,15 +1,38 @@
 import React from 'react';
-import { Edit, Eye, Trash2, Camera, UploadCloud, UserCheck, Activity, Printer } from 'lucide-react';
+import { Edit, Eye, Trash2, Camera, UserCheck, Activity, Printer } from 'lucide-react';
+
+export interface BookingItem {
+  [key: string]: unknown;
+  id: string;
+  bookingNumber: string;
+  createdAt: string;
+  status: string;
+  deviceName?: string;
+  complaint?: string;
+  estimatedCost?: number;
+  customer?: {
+    fullName?: string;
+    name?: string;
+    phoneNumber?: string;
+    phone?: string;
+  };
+  brand?: {
+    name?: string;
+  };
+  technician?: {
+    name?: string;
+  };
+}
 
 interface BookingTableProps {
-  bookings: any[];
+  bookings: BookingItem[];
   loading: boolean;
   onView: (id: string) => void;
-  onEdit: (booking: any) => void;
+  onEdit: (booking: BookingItem) => void;
   onDelete: (id: string) => void;
-  onAssignTechnician: (booking: any) => void;
-  onUpdateStatus: (booking: any) => void;
-  onUploadPhoto: (booking: any) => void;
+  onAssignTechnician: (booking: BookingItem) => void;
+  onUpdateStatus: (booking: BookingItem) => void;
+  onUploadPhoto: (booking: BookingItem) => void;
 }
 
 export function BookingTable({
@@ -84,7 +107,7 @@ export function BookingTable({
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">{booking.brand?.name} {booking.deviceName}</div>
-                <div className="text-xs text-gray-500 truncate max-w-[150px]">{booking.complaint}</div>
+                <div className="text-xs text-gray-500 truncate max-w-36">{booking.complaint}</div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 {getStatusBadge(booking.status)}
@@ -96,14 +119,24 @@ export function BookingTable({
                 {booking.estimatedCost ? formatRupiah(booking.estimatedCost) : '-'}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div className="flex items-center justify-end space-x-2">
-                  <button onClick={() => onView(booking.id)} className="text-blue-600 hover:text-blue-900 p-1" title="Detail"><Eye className="w-4 h-4" /></button>
-                  <a href={`/admin/booking/${booking.id}/receipt`} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-900 p-1" title="Cetak Nota Servis"><Printer className="w-4 h-4" /></a>
-                  <button onClick={() => onUpdateStatus(booking)} className="text-emerald-600 hover:text-emerald-900 p-1" title="Ubah Status"><Activity className="w-4 h-4" /></button>
-                  <button onClick={() => onAssignTechnician(booking)} className="text-purple-600 hover:text-purple-900 p-1" title="Assign Teknisi"><UserCheck className="w-4 h-4" /></button>
-                  <button onClick={() => onUploadPhoto(booking)} className="text-teal-600 hover:text-teal-900 p-1" title="Upload Foto"><Camera className="w-4 h-4" /></button>
-                  <button onClick={() => onEdit(booking)} className="text-indigo-600 hover:text-indigo-900 p-1" title="Edit"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => onDelete(booking.id)} className="text-red-600 hover:text-red-900 p-1" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => onUpdateStatus(booking)}
+                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                    title="Ubah Status Booking"
+                  >
+                    <Activity className="w-3.5 h-3.5" />
+                    Ubah Status
+                  </button>
+
+                  <div className="flex items-center gap-1 border-l border-slate-200 pl-2">
+                    <button onClick={() => onView(booking.id)} className="text-slate-600 hover:text-slate-900 p-1.5 hover:bg-slate-100 rounded-md transition" title="Detail"><Eye className="w-4 h-4" /></button>
+                    <a href={`/admin/booking/${booking.id}/receipt`} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-800 p-1.5 hover:bg-red-50 rounded-md transition" title="Cetak Nota Servis"><Printer className="w-4 h-4" /></a>
+                    <button onClick={() => onAssignTechnician(booking)} className="text-purple-600 hover:text-purple-800 p-1.5 hover:bg-purple-50 rounded-md transition" title="Assign Teknisi"><UserCheck className="w-4 h-4" /></button>
+                    <button onClick={() => onUploadPhoto(booking)} className="text-teal-600 hover:text-teal-800 p-1.5 hover:bg-teal-50 rounded-md transition" title="Upload Foto"><Camera className="w-4 h-4" /></button>
+                    <button onClick={() => onEdit(booking)} className="text-blue-600 hover:text-blue-800 p-1.5 hover:bg-blue-50 rounded-md transition" title="Edit"><Edit className="w-4 h-4" /></button>
+                    <button onClick={() => onDelete(booking.id)} className="text-rose-600 hover:text-rose-800 p-1.5 hover:bg-rose-50 rounded-md transition" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                  </div>
                 </div>
               </td>
             </tr>

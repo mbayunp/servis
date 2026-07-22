@@ -27,6 +27,8 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // 3. Static Files
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 4. Import Routes
