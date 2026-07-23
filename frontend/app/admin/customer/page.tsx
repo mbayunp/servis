@@ -12,6 +12,7 @@ interface Customer {
   address: string | null;
   createdAt: string;
   bookingsCount?: number;
+  bookings?: any[];
 }
 
 export default function CustomerPage() {
@@ -74,7 +75,7 @@ export default function CustomerPage() {
       const res = await api.get('/bookings', { params: { customerId: customer.id } });
       setCustomerBookings(res.data.data || []);
     } catch (e) {
-      setCustomerBookings([]);
+      setCustomerBookings(customer.bookings || []);
     } finally {
       setLoadingBookings(false);
     }
@@ -184,6 +185,7 @@ export default function CustomerPage() {
                   <th className="px-6 py-4">Pelanggan</th>
                   <th className="px-6 py-4">No. HP / WhatsApp</th>
                   <th className="px-6 py-4">Alamat</th>
+                  <th className="px-6 py-4">Jumlah Servis</th>
                   <th className="px-6 py-4">Tanggal Terdaftar</th>
                   <th className="px-6 py-4 text-right">Aksi</th>
                 </tr>
@@ -209,6 +211,11 @@ export default function CustomerPage() {
                     </td>
                     <td className="px-6 py-4 text-slate-600 max-w-xs truncate">
                       {c.address || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-slate-700 font-semibold text-xs">
+                      <span className="px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-bold">
+                        {c.bookings?.length || c.bookingsCount || 0} Booking
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-slate-500 text-xs">
                       {new Date(c.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}

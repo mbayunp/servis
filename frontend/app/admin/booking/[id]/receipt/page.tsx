@@ -271,7 +271,7 @@ export default function ServiceReceiptPage() {
             <div className="space-y-0.5 border-b border-slate-300 pb-2">
               <div className="text-xl font-black text-black tracking-wide">SERVIS CIANJUR</div>
               <div className="text-[11px] font-semibold text-slate-700">Spesialis Service TV, Laptop, HP &amp; Elektronik</div>
-              <div className="text-[10px] text-slate-600">Kp. Sinagar No.43, Karang Tengah | WA: 0812-3456-7890</div>
+              <div className="text-[10px] text-slate-600">Kp. Sinagar No.43, Karang Tengah | WA: +62 821-1341-3324</div>
             </div>
 
             {/* Metadata Section */}
@@ -330,8 +330,8 @@ export default function ServiceReceiptPage() {
             <div className="space-y-1 border-b border-dashed border-slate-300 pb-2 text-[11px]">
               <div className="font-bold underline uppercase tracking-wider text-[10px] text-slate-700">STATUS &amp; RINCIAN BIAYA</div>
               <div className="flex justify-between">
-                <span className="w-24 shrink-0 text-slate-600">Diagnosa</span>
-                <span className="flex-1">: {diagnosis}</span>
+                <span className="w-24 shrink-0 text-slate-700 font-bold">Hasil Diagnosa</span>
+                <span className="flex-1 font-bold text-black font-sans leading-snug">: {diagnosis}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="w-24 shrink-0 text-slate-600">Status Unit</span>

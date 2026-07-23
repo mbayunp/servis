@@ -52,6 +52,13 @@ export const createPublicBooking = async (req: Request, res: Response) => {
         phoneNumber: whatsapp,
         address: address
       });
+    } else {
+      const updates: any = {};
+      if (address && customer.address !== address) updates.address = address;
+      if (name && customer.fullName !== name) updates.fullName = name;
+      if (Object.keys(updates).length > 0) {
+        await customer.update(updates);
+      }
     }
 
     // 2. Prepare Booking Data

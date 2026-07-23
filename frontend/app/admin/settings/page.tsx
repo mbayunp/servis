@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     companyName: 'Servis Cianjur',
     logoUrl: '',
-    phone: '081234567890',
+    phone: '+62 821-1341-3324',
     email: 'info@serviscianjur.com',
     address: 'Jl. Raya Cianjur No. 123, Cianjur, Jawa Barat',
     instagram: '@serviscianjur',

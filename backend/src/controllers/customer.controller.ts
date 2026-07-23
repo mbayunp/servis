@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Customer from '../models/customer.model.js';
+import Booking from '../models/booking.model.js';
 
 const sanitizePayload = (body: any) => {
   const payload = { ...body };
@@ -11,7 +12,16 @@ const sanitizePayload = (body: any) => {
 
 export const getAll = async (_req: Request, res: Response) => {
   try {
-    const data = await Customer.findAll({ order: [['createdAt', 'DESC']] });
+    const data = await Customer.findAll({
+      include: [
+        {
+          model: Booking,
+          as: 'bookings',
+          attributes: ['id', 'bookingNumber', 'status', 'deviceName', 'createdAt']
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
@@ -20,7 +30,15 @@ export const getAll = async (_req: Request, res: Response) => {
 
 export const getById = async (req: Request, res: Response) => {
   try {
-    const data = await Customer.findByPk(req.params.id as string);
+    const data = await Customer.findByPk(req.params.id as string, {
+      include: [
+        {
+          model: Booking,
+          as: 'bookings',
+          order: [['createdAt', 'DESC']]
+        }
+      ]
+    });
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
     res.json({ success: true, data });
   } catch (error: any) {

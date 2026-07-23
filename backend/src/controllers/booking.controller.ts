@@ -41,7 +41,7 @@ export const getAll = async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const offset = (page - 1) * limit;
 
-    const { search, status, technicianId, startDate, endDate } = req.query;
+    const { search, status, technicianId, customerId, startDate, endDate } = req.query;
 
     let whereCondition: any = {};
 
@@ -58,6 +58,9 @@ export const getAll = async (req: Request, res: Response) => {
     }
     if (technicianId) {
       whereCondition.technicianId = technicianId;
+    }
+    if (customerId) {
+      whereCondition.customerId = customerId;
     }
     if (startDate && endDate) {
       whereCondition.createdAt = {
@@ -101,6 +104,22 @@ export const create = async (req: Request, res: Response) => {
   try {
     const bookingNumber = 'SCJ-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100 + Math.random()*900);
     const payload = sanitizeBookingPayload(req.body);
+
+    // Auto find or create customer if customerId not supplied but customer details provided
+    if (!payload.customerId && (req.body.customerName || req.body.fullName) && (req.body.customerPhone || req.body.phoneNumber || req.body.phone)) {
+      const phone = req.body.customerPhone || req.body.phoneNumber || req.body.phone;
+      const name = req.body.customerName || req.body.fullName;
+      const address = req.body.address || req.body.customerAddress || null;
+
+      let customer = await Customer.findOne({ where: { phoneNumber: phone } });
+      if (!customer) {
+        customer = await Customer.create({ fullName: name, phoneNumber: phone, address });
+      } else if (address && !customer.address) {
+        await customer.update({ address });
+      }
+      payload.customerId = customer.id;
+    }
+
     const data = await Booking.create({ ...payload, bookingNumber });
     
     // Automatically record tracking history
@@ -163,6 +182,9 @@ export const updateStatus = async (req: Request, res: Response) => {
     const updatePayload: any = { status: newStatus };
     if (diagnosis !== undefined && diagnosis !== null) {
       updatePayload.diagnosis = diagnosis;
+    }
+    if (req.body.estimatedCost !== undefined && req.body.estimatedCost !== null) {
+      updatePayload.estimatedCost = req.body.estimatedCost;
     }
 
     await data.update(updatePayload);

@@ -193,30 +193,28 @@ export default function AdminBookingPage() {
 
       {/* Pagination Controls */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-200 sm:px-6 rounded-md">
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-200 sm:px-6 rounded-xl shadow-sm">
+          <div className="flex flex-1 items-center justify-between">
             <div>
-              <p className="text-sm text-gray-700">
-                Halaman <span className="font-medium">{page}</span> dari <span className="font-medium">{totalPages}</span>
+              <p className="text-xs sm:text-sm text-gray-700 font-medium">
+                Halaman <span className="font-bold text-red-600">{page}</span> dari <span className="font-bold">{totalPages}</span>
               </p>
             </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
-                >
-                  Next
-                </button>
-              </nav>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="relative inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="relative inline-flex items-center px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>

@@ -66,11 +66,12 @@ export default function HomePage() {
   const profile = {
     heroTitle: "Service Elektronik Terpercaya di Cianjur Sejak 1990",
     heroSubtitle: "Telah melayani masyarakat lebih dari 30 tahun. Kami memperbaiki semua merek dengan proses cepat, teknisi ahli, biaya transparan, dan bergaransi.",
-    phone: "0812-3456-7890",
+    phone: "+62 821-1341-3324",
     email: "admin@servicecianjur.com",
     operatingHours: "Senin – Sabtu (08.00 – 17.00)",
     address: "Kp. Sinagar No.43 (Terusan Rawa Bango)\nDesa Bojong, Kec. Karang Tengah\nKab. Cianjur, Jawa Barat",
-    whatsappUrl: "https://wa.me/6281234567890",
+    whatsappUrl: "https://wa.me/6282113413324",
+    mapsUrl: "https://maps.app.goo.gl/xcHNBrLkjtR7mJ7D7",
     aboutTitle: "Berpengalaman Lebih Dari Tiga Dekade",
     aboutText1: "Berdiri sejak tahun 1990, Service Cianjur telah menjadi tempat servis elektronik pilihan utama masyarakat di Kabupaten Cianjur dan sekitarnya.",
     aboutText2: "Kami bangga pernah bekerja sama dengan Polytron sebagai cabang Authorized Service Center. Hal ini membuktikan bahwa standar kualitas pelayanan dan penanganan teknis kami setara dengan standar pabrikan resmi."
@@ -341,12 +342,25 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Maps Placeholder */}
-            <div className="md:w-1/2 relative min-h-[400px]">
-              <div className="absolute inset-0 bg-gray-200 flex flex-col items-center justify-center border-l border-gray-100">
-                <FaMapMarkerAlt className="text-6xl text-red-600 mb-4 drop-shadow-md" />
-                <span className="text-black font-bold text-xl">Area Google Maps</span>
-                <p className="text-gray-500 text-sm mt-2">Iframe maps akan ditempatkan di sini</p>
+            {/* Google Maps Section */}
+            <div className="md:w-1/2 relative min-h-[400px] flex flex-col">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3961.6845921039076!2d107.1698180758746!3d-6.808167666590678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwNDgnMjkuNCJTIDEwN8KwMTAnMjAuNiJF!5e0!3m2!1sen!2sid!4v1784775604162!5m2!1sen!2sid"
+                className="w-full h-full min-h-[400px] border-0 rounded-b-[2.5rem] md:rounded-b-none md:rounded-r-[2.5rem]"
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                title="Lokasi Servis Cianjur"
+              ></iframe>
+              <div className="absolute bottom-4 right-4 z-10">
+                <a
+                  href={profile.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-lg transition-all transform hover:scale-105 border border-white/20"
+                >
+                  <FaMapMarkerAlt /> Buka di Google Maps
+                </a>
               </div>
             </div>
           </div>

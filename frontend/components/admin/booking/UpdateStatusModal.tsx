@@ -13,11 +13,13 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const [diagnosis, setDiagnosis] = useState('');
+  const [estimatedCost, setEstimatedCost] = useState('');
 
   useEffect(() => {
     if (isOpen && booking) {
       setStatus(String(booking?.status || 'Pending'));
       setDiagnosis(String(booking?.diagnosis || ''));
+      setEstimatedCost(booking?.estimatedCost !== undefined && booking?.estimatedCost !== null ? String(booking.estimatedCost) : '');
     }
   }, [isOpen, booking]);
 
@@ -29,7 +31,11 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
     
     setLoading(true);
     try {
-      await api.patch(`/bookings/${booking.id}/status`, { status, diagnosis });
+      await api.patch(`/bookings/${booking.id}/status`, {
+        status,
+        diagnosis,
+        estimatedCost: estimatedCost ? Number(estimatedCost) : null
+      });
       onSuccess();
       onClose();
     } catch (error) {
@@ -77,6 +83,19 @@ export function UpdateStatusModal({ isOpen, onClose, booking, onSuccess }: Updat
                 <option value="Picked Up">Picked Up (Sudah Diambil)</option>
                 <option value="Cancelled">Cancelled (Dibatalkan)</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                Estimasi Biaya (Rp)
+              </label>
+              <input
+                type="number"
+                value={estimatedCost}
+                onChange={e => setEstimatedCost(e.target.value)}
+                placeholder="Contoh: 150000"
+                className="w-full px-3 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              />
             </div>
 
             <div>
