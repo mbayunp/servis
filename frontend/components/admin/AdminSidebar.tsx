@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import NextImage from 'next/image';
 import { 
   LayoutDashboard, 
   CalendarCheck, 
@@ -73,7 +74,7 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
-    } catch (e) {
+    } catch {
       // Ignore
     } finally {
       localStorage.removeItem('accessToken');
@@ -98,11 +99,13 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between h-16 px-6 border-b-2 border-red-600 flex-shrink-0 bg-white">
+        <div className="flex items-center justify-between h-16 px-6 border-b-2 border-red-600 shrink-0 bg-white">
           <div className="flex items-center gap-2.5">
-            <img
+            <NextImage
               src="/logo.png"
               alt="Servis Cianjur Logo"
+              width={36}
+              height={36}
               className="w-9 h-9 object-contain drop-shadow-sm"
             />
             <span className="text-base font-extrabold uppercase tracking-wider text-slate-900">
@@ -139,7 +142,7 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
                         }`}
                       >
                         <item.icon
-                          className={`mr-3 flex-shrink-0 h-4 w-4 transition-colors ${
+                          className={`mr-3 shrink-0 h-4 w-4 transition-colors ${
                             isActive ? 'text-white' : 'text-slate-400 group-hover:text-red-600'
                           }`}
                           aria-hidden="true"
@@ -154,12 +157,12 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-200 space-y-3 flex-shrink-0 bg-slate-50">
+        <div className="p-4 border-t border-slate-200 space-y-3 shrink-0 bg-slate-50">
           <button 
             onClick={handleLogout}
             className="w-full flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl text-slate-700 hover:bg-red-600 hover:text-white transition-all cursor-pointer shadow-xs"
           >
-            <LogOut className="mr-3 flex-shrink-0 h-4 w-4" aria-hidden="true" />
+            <LogOut className="mr-3 shrink-0 h-4 w-4" aria-hidden="true" />
             Logout
           </button>
           <div className="text-[11px] text-slate-400 text-center font-medium">

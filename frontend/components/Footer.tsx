@@ -85,15 +85,15 @@ export default function Footer() {
             <h4 className="text-xl font-bold mb-6 text-gray-900 border-b-2 border-red-600 pb-2 inline-block">Kontak Kami</h4>
             <ul className="space-y-4 text-gray-600">
               <li className="flex items-start hover:text-red-600 transition-colors group">
-                <FaPhoneAlt className="text-red-500 mt-1 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <FaPhoneAlt className="text-red-500 mt-1 mr-4 shrink-0 group-hover:scale-110 transition-transform" />
                 <a href="https://wa.me/6282113413324" target="_blank" rel="noopener noreferrer" className="hover:underline">+62 821-1341-3324</a>
               </li>
               <li className="flex items-start hover:text-red-600 transition-colors group">
-                <FaMapMarkerAlt className="text-red-500 mt-1 mr-4 flex-shrink-0 text-xl group-hover:scale-110 transition-transform" />
+                <FaMapMarkerAlt className="text-red-500 mt-1 mr-4 shrink-0 text-xl group-hover:scale-110 transition-transform" />
                 <a href="https://maps.app.goo.gl/xcHNBrLkjtR7mJ7D7" target="_blank" rel="noopener noreferrer" className="leading-relaxed hover:underline">Kp. Sinagar No.43, Desa Bojong, Karang Tengah, Cianjur</a>
               </li>
               <li className="flex items-start hover:text-red-600 transition-colors group">
-                <FaClock className="text-red-500 mt-1 mr-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <FaClock className="text-red-500 mt-1 mr-4 shrink-0 group-hover:scale-110 transition-transform" />
                 <span>Senin - Sabtu <br/>(08:00 - 17:00)</span>
               </li>
             </ul>

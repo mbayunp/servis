@@ -28,9 +28,20 @@ import {
 import { MdOutlineLocalLaundryService } from "react-icons/md";
 import api from '../lib/axios';
 
+interface TestimonialItem {
+  id?: string;
+  name?: string;
+  customerName?: string;
+  status?: string;
+  rating?: number;
+  comment?: string;
+  text?: string;
+  device?: string;
+}
+
 export default function HomePage() {
   const router = useRouter();
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
   const [quickTrackingNo, setQuickTrackingNo] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -38,7 +49,7 @@ export default function HomePage() {
     api.get('/testimonials')
       .then(res => {
         if (res.data.success && Array.isArray(res.data.data)) {
-          const approved = res.data.data.filter((t: any) => t.status === 'APPROVED' || !t.status);
+          const approved = res.data.data.filter((t: TestimonialItem) => t.status === 'APPROVED' || !t.status);
           setTestimonials(approved.length > 0 ? approved : res.data.data);
         }
       })
@@ -142,7 +153,7 @@ export default function HomePage() {
       {/* 1. HERO SECTION */}
       <section className="relative bg-slate-950 text-white pt-28 pb-20 md:pt-36 md:pb-28 border-b-4 border-red-600 overflow-hidden">
         {/* Background Subtle Line Pattern */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] bg-size-[24px_24px]"></div>
         
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -208,7 +219,7 @@ export default function HomePage() {
             {/* Right Visual Image Frame */}
             <div className="lg:col-span-5 flex justify-center">
               <div className="relative w-full max-w-md">
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-red-600 to-black rounded-3xl blur opacity-30"></div>
+                <div className="absolute -inset-1.5 bg-linear-to-r from-red-600 to-black rounded-3xl blur opacity-30"></div>
                 <div className="relative bg-slate-900 border-2 border-red-600/40 rounded-2xl overflow-hidden shadow-2xl">
                   <Image
                     src="/workshop.png"
@@ -435,7 +446,7 @@ export default function HomePage() {
 
           {testimonials.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonials.map((testi: any, i: number) => (
+              {testimonials.map((testi: TestimonialItem, i: number) => (
                 <div key={testi.id || i} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
@@ -576,10 +587,10 @@ export default function HomePage() {
             </div>
 
             {/* Embed Map */}
-            <div className="lg:col-span-7 min-h-[350px] relative">
+            <div className="lg:col-span-7 min-h-87.5 relative">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3961.6845921039076!2d107.1698180758746!3d-6.808167666590678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwNDgnMjkuNCJTIDEwN8KwMTAnMjAuNiJF!5e0!3m2!1sen!2sid!4v1784775604162!5m2!1sen!2sid"
-                className="w-full h-full min-h-[350px] border-0"
+                className="w-full h-full min-h-87.5 border-0"
                 allowFullScreen={true}
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"

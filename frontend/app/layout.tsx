@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         
         {/* Main content area */}
-        <main className="flex-grow">
+        <main className="grow">
           {children}
         </main>
 

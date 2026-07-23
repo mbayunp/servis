@@ -3,13 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { 
-  CalendarDays, 
-  Wrench, 
   ShieldCheck, 
-  BadgeDollarSign, 
-  Laptop, 
-  Home,
-  CheckCircle2,
   HeartHandshake,
   Award,
   Clock,
@@ -25,7 +19,7 @@ export default function AboutClient() {
       {/* 1. HERO SECTION */}
       <section className="relative bg-slate-950 text-white pt-28 pb-20 md:pt-36 md:pb-24 border-b-4 border-red-600 overflow-hidden">
         {/* Subtle Line Pattern */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] bg-size-[24px_24px]"></div>
 
         <div className="container mx-auto px-4 sm:px-6 relative z-10 max-w-5xl text-center">
           <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-red-400 uppercase tracking-wider mb-6">

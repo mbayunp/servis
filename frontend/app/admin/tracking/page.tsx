@@ -1,13 +1,41 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Map, Clock, ArrowRight, ShieldAlert, RefreshCw, Layers } from 'lucide-react';
+import { Search, Map, Clock, ArrowRight, ShieldAlert, RefreshCw } from 'lucide-react';
 import api from '../../../lib/axios';
+
+interface TrackingHistoryItem {
+  id?: string;
+  title?: string;
+  description?: string;
+  createdAt?: string;
+}
+
+interface TrackingData {
+  bookingNumber?: string;
+  status?: string;
+  deviceName?: string;
+  customer?: {
+    fullName?: string;
+    phoneNumber?: string;
+  };
+  brand?: {
+    name?: string;
+  };
+  deviceType?: {
+    name?: string;
+  };
+  technician?: {
+    name?: string;
+    phone?: string;
+  };
+  histories?: TrackingHistoryItem[];
+}
 
 export default function AdminTrackingPage() {
   const [searchCode, setSearchCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [trackingData, setTrackingData] = useState<any>(null);
+  const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -23,8 +51,9 @@ export default function AdminTrackingPage() {
       if (res.data.success) {
         setTrackingData(res.data.data);
       }
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.message || 'Nomor resi / kode booking tidak ditemukan.');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      setErrorMsg(errorObj.response?.data?.message || 'Nomor resi / kode booking tidak ditemukan.');
     } finally {
       setLoading(false);
     }
@@ -45,7 +74,7 @@ export default function AdminTrackingPage() {
 
       {/* Info Box */}
       <div className="p-4 rounded-xl bg-red-50/60 border border-red-100 text-slate-800 text-xs flex items-center gap-3">
-        <Clock className="h-5 w-5 text-red-600 flex-shrink-0" />
+        <Clock className="h-5 w-5 text-red-600 shrink-0" />
         <div>
           <span className="font-bold text-slate-900">Prinsip Single Source of Truth:</span> Seluruh pembaruan status dan penugasan teknisi dilakukan dari menu <a href="/admin/booking" className="underline font-bold text-red-600 hover:text-red-700">Booking</a>. Halaman tracking ini bersifat viewer (read-only) untuk menginspeksi hasil visualisasi ke pelanggan.
         </div>
@@ -54,7 +83,7 @@ export default function AdminTrackingPage() {
       {/* Search Input Bar */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-grow">
+          <div className="relative grow">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
@@ -78,7 +107,7 @@ export default function AdminTrackingPage() {
       {/* Error State */}
       {errorMsg && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold flex items-center gap-2.5">
-          <ShieldAlert className="h-5 w-5 flex-shrink-0 text-red-600" />
+          <ShieldAlert className="h-5 w-5 shrink-0 text-red-600" />
           {errorMsg}
         </div>
       )}
@@ -132,14 +161,14 @@ export default function AdminTrackingPage() {
 
             {trackingData.histories && trackingData.histories.length > 0 ? (
               <div className="relative border-l-2 border-slate-200 ml-4 space-y-4">
-                {trackingData.histories.map((h: any) => (
+                {trackingData.histories.map((h: TrackingHistoryItem) => (
                   <div key={h.id} className="relative pl-6">
-                    <div className="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-red-600 border-2 border-white ring-2 ring-red-100"></div>
+                    <div className="absolute -left-1.75 top-1 w-3 h-3 rounded-full bg-red-600 border-2 border-white ring-2 ring-red-100"></div>
                     <div>
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-bold text-slate-900">{h.title}</span>
                         <span className="text-[10px] text-slate-400 font-mono">
-                          {new Date(h.createdAt).toLocaleDateString('id-ID')} • {new Date(h.createdAt).toLocaleTimeString('id-ID')}
+                          {h.createdAt ? `${new Date(h.createdAt).toLocaleDateString('id-ID')} • ${new Date(h.createdAt).toLocaleTimeString('id-ID')}` : '-'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">{h.description}</p>
