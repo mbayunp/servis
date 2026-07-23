@@ -117,13 +117,17 @@ export default function BookingPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-red-200 selection:text-red-900">
       
       {/* 1. HERO SECTION */}
-      <section className="bg-white border-b border-gray-200 pt-28 pb-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
+      <section className="relative bg-slate-950 text-white pt-28 pb-20 md:pt-36 border-b-4 border-red-600 px-6 overflow-hidden">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10 space-y-4">
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-red-600/20 text-red-400 border border-red-500/40 uppercase tracking-wider">
+            <Wrench className="h-3.5 w-3.5 text-red-500" /> FORMULIR REGISTRASI ONLINE
+          </span>
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">
             Booking Servis Elektronik
           </h1>
-          <p className="text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto">
-            Isi formulir berikut untuk melakukan pemesanan servis. Tim Servis Cianjur akan segera menghubungi Anda untuk konfirmasi jadwal dan biaya.
+          <p className="text-slate-300 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
+            Isi formulir berikut untuk pendaftaran servis. Tim Servis Cianjur akan segera mengkonfirmasi jadwal dan estimasi biaya melalui WhatsApp.
           </p>
         </div>
       </section>

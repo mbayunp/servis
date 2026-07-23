@@ -191,21 +191,21 @@ function TrackingContent() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between">
       {/* Search Header Banner */}
-      <section className="bg-slate-900 text-white py-16 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-size-[16px_16px] opacity-10"></div>
-        <div className="max-w-4xl mx-auto text-center relative z-10 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-600/20 border border-red-500/30 rounded-full text-red-400 text-xs font-semibold uppercase tracking-wider">
-            <Wrench className="h-3.5 w-3.5" /> Servis Cianjur Live Tracking
+      <section className="relative bg-slate-950 text-white pt-28 pb-20 md:pt-36 border-b-4 border-red-600 px-6 overflow-hidden">
+        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-red-600/20 border border-red-500/40 rounded-full text-red-400 text-xs font-bold uppercase tracking-wider">
+            <Wrench className="h-3.5 w-3.5 text-red-500" /> SERVIS CIANJUR LIVE TRACKING
           </div>
           
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
             Lacak Status Perbaikan Perangkat
           </h1>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto">
-            Masukkan Nomor Booking / Kode Servis Anda (Contoh: <span className="text-white font-mono font-bold">SCJ-20260722-123</span>) untuk melihat progres perbaikan secara langsung.
+          <p className="text-slate-300 text-sm max-w-xl mx-auto leading-relaxed">
+            Masukkan Nomor Booking / Kode Servis Anda (Contoh: <span className="text-white font-mono font-bold">SCJ-20260723-839</span>) untuk melihat progres perbaikan secara langsung.
           </p>
 
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3 pt-4">
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3 pt-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
@@ -213,13 +213,13 @@ function TrackingContent() {
                 placeholder="Masukkan Nomor Resi / Kode Servis (SCJ-...)"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 font-mono tracking-wide transition-all"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-red-600 font-mono tracking-wide transition-all"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-4 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold text-sm rounded-2xl shadow-lg hover:shadow-red-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="px-8 py-3.5 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>

@@ -94,24 +94,24 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
 
       {/* Sidebar Panel */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-slate-950 text-white flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white text-slate-900 border-r border-slate-200 shadow-lg flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
           isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between h-16 px-6 border-b border-slate-800/80 flex-shrink-0 bg-slate-900">
+        <div className="flex items-center justify-between h-16 px-6 border-b-2 border-red-600 flex-shrink-0 bg-white">
           <div className="flex items-center gap-2.5">
             <img
               src="/logo.png"
               alt="Servis Cianjur Logo"
-              className="w-9 h-9 object-contain drop-shadow"
+              className="w-9 h-9 object-contain drop-shadow-sm"
             />
-            <span className="text-base font-extrabold uppercase tracking-wider text-white">
-              Servis <span className="text-red-500">Cianjur</span>
+            <span className="text-base font-extrabold uppercase tracking-wider text-slate-900">
+              Servis <span className="text-red-600">Cianjur</span>
             </span>
           </div>
           <button
             onClick={onClose}
-            className="md:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+            className="md:hidden text-slate-400 hover:text-red-600 p-1 rounded-lg"
           >
             <X className="h-5 w-5" />
           </button>
@@ -121,7 +121,7 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
           <nav className="space-y-6 px-3">
             {navSections.map((section) => (
               <div key={section.title}>
-                <div className="px-2 mb-2 text-[10px] font-bold text-red-400/90 uppercase tracking-wider">
+                <div className="px-2 mb-2 text-[10px] font-bold text-red-600 uppercase tracking-wider">
                   {section.title}
                 </div>
                 <div className="space-y-1">
@@ -135,12 +135,12 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
                         className={`group flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all duration-200 ${
                           isActive
                             ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
-                            : 'text-slate-300 hover:bg-slate-900 hover:text-red-400'
+                            : 'text-slate-700 hover:bg-red-50 hover:text-red-600'
                         }`}
                       >
                         <item.icon
                           className={`mr-3 flex-shrink-0 h-4 w-4 transition-colors ${
-                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-red-400'
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-red-600'
                           }`}
                           aria-hidden="true"
                         />
@@ -154,15 +154,15 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-800/80 space-y-3 flex-shrink-0 bg-slate-900">
+        <div className="p-4 border-t border-slate-200 space-y-3 flex-shrink-0 bg-slate-50">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl text-slate-300 hover:bg-red-600 hover:text-white transition-all cursor-pointer shadow-xs"
+            className="w-full flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl text-slate-700 hover:bg-red-600 hover:text-white transition-all cursor-pointer shadow-xs"
           >
             <LogOut className="mr-3 flex-shrink-0 h-4 w-4" aria-hidden="true" />
             Logout
           </button>
-          <div className="text-[11px] text-slate-500 text-center font-medium">
+          <div className="text-[11px] text-slate-400 text-center font-medium">
             &copy; {new Date().getFullYear()} Servis Cianjur
           </div>
         </div>
