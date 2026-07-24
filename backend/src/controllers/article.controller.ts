@@ -22,44 +22,47 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { title, content, excerpt, category, status, author, image, imageUrl } = req.body;
+    const { title, content, excerpt, category, status, author } = req.body;
 
-    if (!title || !title.trim()) {
+    if (!title || typeof title !== 'string' || !title.trim()) {
       return res.status(400).json({ success: false, message: 'Judul artikel wajib diisi.' });
     }
-    if (!content || !content.trim()) {
+    if (!content || typeof content !== 'string' || !content.trim()) {
       return res.status(400).json({ success: false, message: 'Isi konten artikel wajib diisi.' });
     }
 
-    let imagePath: string | null = null;
+    let finalImagePath: string | null = null;
+
     if (req.file) {
-      imagePath = `/uploads/articles/${req.file.filename}`;
-    } else if (image && typeof image === 'string' && image.trim()) {
-      imagePath = image.trim();
-    } else if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim()) {
-      imagePath = imageUrl.trim();
+      finalImagePath = `/uploads/articles/${req.file.filename}`;
+    } else if (typeof req.body.image === 'string' && req.body.image.trim() !== '') {
+      finalImagePath = req.body.image.trim();
+    } else if (Array.isArray(req.body.image) && typeof req.body.image[0] === 'string' && req.body.image[0].trim() !== '') {
+      finalImagePath = req.body.image[0].trim();
+    } else if (typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim() !== '') {
+      finalImagePath = req.body.imageUrl.trim();
+    } else if (Array.isArray(req.body.imageUrl) && typeof req.body.imageUrl[0] === 'string' && req.body.imageUrl[0].trim() !== '') {
+      finalImagePath = req.body.imageUrl[0].trim();
     }
 
-    if (!imagePath) {
+    if (!finalImagePath) {
       return res.status(400).json({
         success: false,
         message: 'Gambar sampul artikel wajib diunggah atau dimasukkan via URL.'
       });
     }
 
-    const slug = title
-      ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-      : `article-${Date.now()}`;
+    const slug = title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
     const data = await Article.create({
       title: title.trim(),
       slug,
       content: content.trim(),
-      excerpt: excerpt || null,
-      category: category || 'Edukasi Servis',
-      status: status || 'PUBLISHED',
-      author: author || 'Admin',
-      image: imagePath
+      excerpt: typeof excerpt === 'string' ? excerpt : null,
+      category: typeof category === 'string' ? category : 'Edukasi Servis',
+      status: typeof status === 'string' ? status : 'PUBLISHED',
+      author: typeof author === 'string' ? author : 'Admin',
+      image: finalImagePath
     });
 
     res.status(201).json({ success: true, data });
@@ -74,22 +77,31 @@ export const update = async (req: Request, res: Response) => {
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
 
     const updateData: any = {};
-    if (req.body.title !== undefined && req.body.title.trim()) {
+    if (typeof req.body.title === 'string' && req.body.title.trim()) {
       updateData.title = req.body.title.trim();
       updateData.slug = req.body.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }
-    if (req.body.excerpt !== undefined) updateData.excerpt = req.body.excerpt;
-    if (req.body.content !== undefined) updateData.content = req.body.content;
-    if (req.body.category !== undefined) updateData.category = req.body.category;
-    if (req.body.status !== undefined) updateData.status = req.body.status;
-    if (req.body.author !== undefined) updateData.author = req.body.author;
+    if (typeof req.body.excerpt === 'string') updateData.excerpt = req.body.excerpt;
+    if (typeof req.body.content === 'string') updateData.content = req.body.content;
+    if (typeof req.body.category === 'string') updateData.category = req.body.category;
+    if (typeof req.body.status === 'string') updateData.status = req.body.status;
+    if (typeof req.body.author === 'string') updateData.author = req.body.author;
 
+    let finalImagePath: string | null = null;
     if (req.file) {
-      updateData.image = `/uploads/articles/${req.file.filename}`;
-    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.trim()) {
-      updateData.image = req.body.image.trim();
-    } else if (req.body.imageUrl && typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim()) {
-      updateData.image = req.body.imageUrl.trim();
+      finalImagePath = `/uploads/articles/${req.file.filename}`;
+    } else if (typeof req.body.image === 'string' && req.body.image.trim() !== '') {
+      finalImagePath = req.body.image.trim();
+    } else if (Array.isArray(req.body.image) && typeof req.body.image[0] === 'string' && req.body.image[0].trim() !== '') {
+      finalImagePath = req.body.image[0].trim();
+    } else if (typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim() !== '') {
+      finalImagePath = req.body.imageUrl.trim();
+    } else if (Array.isArray(req.body.imageUrl) && typeof req.body.imageUrl[0] === 'string' && req.body.imageUrl[0].trim() !== '') {
+      finalImagePath = req.body.imageUrl[0].trim();
+    }
+
+    if (finalImagePath) {
+      updateData.image = finalImagePath;
     }
 
     await data.update(updateData);
