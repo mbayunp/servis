@@ -13,6 +13,17 @@ export const getApiBaseUrl = (): string => {
   return 'http://localhost:5000/api';
 };
 
+export const getUploadsBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_UPLOADS_URL) {
+    return process.env.NEXT_PUBLIC_UPLOADS_URL;
+  }
+  // Fallback jika .env gagal terbaca di browser
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/servis/uploads`;
+  }
+  return 'http://localhost:5000/uploads';
+};
+
 // Create Axios Instance
 const api = axios.create({
   baseURL: getApiBaseUrl(),
@@ -55,7 +66,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
         }).then(token => {
           originalRequest.headers['Authorization'] = 'Bearer ' + token;
@@ -69,7 +80,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
-      
+
       if (!refreshToken) {
         isRefreshing = false;
         // Proceed to logout
@@ -96,7 +107,7 @@ api.interceptors.response.use(
 
         api.defaults.headers.common['Authorization'] = 'Bearer ' + newAccessToken;
         originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
-        
+
         processQueue(null, newAccessToken);
         return axios(originalRequest);
       } catch (refreshError) {
