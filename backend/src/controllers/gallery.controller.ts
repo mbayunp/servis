@@ -22,13 +22,15 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { title, category, description } = req.body;
+    const { title, category, description, imageUrl } = req.body;
     if (!title || !title.trim()) {
       return res.status(400).json({ success: false, message: 'Judul foto wajib diisi' });
     }
-    let imagePath = req.body.imageUrl || '/placeholder-image.png';
+    let imagePath: string | null = null;
     if (req.file) {
       imagePath = `/uploads/gallery/${req.file.filename}`;
+    } else if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim() !== '') {
+      imagePath = imageUrl.trim();
     }
     const data = await Gallery.create({
       title: title.trim(),
@@ -46,10 +48,18 @@ export const update = async (req: Request, res: Response) => {
   try {
     const data = await Gallery.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    const updateData: any = { ...req.body };
+    
+    const updateData: any = {};
+    if (req.body.title !== undefined) updateData.title = req.body.title.trim();
+    if (req.body.category !== undefined) updateData.category = req.body.category;
+    if (req.body.description !== undefined) updateData.description = req.body.description;
+    
     if (req.file) {
       updateData.imageUrl = `/uploads/gallery/${req.file.filename}`;
+    } else if (req.body.imageUrl && typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim() !== '') {
+      updateData.imageUrl = req.body.imageUrl.trim();
     }
+
     await data.update(updateData);
     res.json({ success: true, data });
   } catch (error: any) {

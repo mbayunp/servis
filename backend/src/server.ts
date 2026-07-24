@@ -13,8 +13,8 @@ const startServer = async () => {
     setupAssociations();
     console.log('Model associations configured.');
 
-    await sequelize.sync();
-    console.log('Database synchronized.');
+    await sequelize.sync({ alter: true });
+    console.log('Database synchronized with schema updates.');
 
     server = app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

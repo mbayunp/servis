@@ -54,10 +54,24 @@ export const update = async (req: Request, res: Response) => {
   try {
     const data = await Article.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    const updateData: any = { ...req.body };
+    
+    const updateData: any = {};
+    if (req.body.title !== undefined) {
+      updateData.title = req.body.title.trim();
+      updateData.slug = req.body.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+    if (req.body.excerpt !== undefined) updateData.excerpt = req.body.excerpt;
+    if (req.body.content !== undefined) updateData.content = req.body.content;
+    if (req.body.category !== undefined) updateData.category = req.body.category;
+    if (req.body.status !== undefined) updateData.status = req.body.status;
+    if (req.body.author !== undefined) updateData.author = req.body.author;
+
     if (req.file) {
       updateData.image = `/uploads/articles/${req.file.filename}`;
+    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.trim() !== '') {
+      updateData.image = req.body.image.trim();
     }
+
     await data.update(updateData);
     res.json({ success: true, data });
   } catch (error: any) {
