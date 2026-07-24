@@ -22,6 +22,7 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
+    console.log('Uploaded File:', req.file);
     const { title, content, excerpt, category, status, author } = req.body;
 
     if (!title || typeof title !== 'string' || !title.trim()) {

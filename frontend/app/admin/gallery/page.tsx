@@ -112,10 +112,14 @@ export default function GalleryPage() {
       }
 
       if (selectedGallery) {
-        await api.put(`/gallery/${selectedGallery.id}`, data);
+        await api.put(`/gallery/${selectedGallery.id}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setSuccessNotification(`Foto "${formData.title}" berhasil diperbarui!`);
       } else {
-        await api.post('/gallery', data);
+        await api.post('/gallery', data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setSuccessNotification(`Foto "${formData.title}" berhasil ditambahkan!`);
       }
 

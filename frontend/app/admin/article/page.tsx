@@ -128,10 +128,14 @@ export default function ArticlePage() {
       }
 
       if (selectedArticle) {
-        await api.put(`/articles/${selectedArticle.id}`, data);
+        await api.put(`/articles/${selectedArticle.id}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setSuccessNotification(`Artikel "${formData.title}" berhasil diperbarui!`);
       } else {
-        await api.post('/articles', data);
+        await api.post('/articles', data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setSuccessNotification(`Artikel "${formData.title}" berhasil diterbitkan!`);
       }
 
