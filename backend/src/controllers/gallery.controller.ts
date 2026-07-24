@@ -22,11 +22,20 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    let imagePath = req.body.imageUrl || null;
+    const { title, category, description } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, message: 'Judul foto wajib diisi' });
+    }
+    let imagePath = req.body.imageUrl || '/placeholder-image.png';
     if (req.file) {
       imagePath = `/uploads/gallery/${req.file.filename}`;
     }
-    const data = await Gallery.create({ ...req.body, imageUrl: imagePath });
+    const data = await Gallery.create({
+      title: title.trim(),
+      category: category || 'Hasil Servis',
+      description: description || '',
+      imageUrl: imagePath
+    });
     res.status(201).json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -37,7 +46,7 @@ export const update = async (req: Request, res: Response) => {
   try {
     const data = await Gallery.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    const updateData = { ...req.body };
+    const updateData: any = { ...req.body };
     if (req.file) {
       updateData.imageUrl = `/uploads/gallery/${req.file.filename}`;
     }

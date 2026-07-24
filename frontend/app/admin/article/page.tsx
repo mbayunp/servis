@@ -124,13 +124,9 @@ export default function ArticlePage() {
       }
 
       if (selectedArticle) {
-        await api.put(`/articles/${selectedArticle.id}`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.put(`/articles/${selectedArticle.id}`, data);
       } else {
-        await api.post('/articles', data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.post('/articles', data);
       }
       setIsModalOpen(false);
       fetchArticles();

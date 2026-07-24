@@ -108,13 +108,9 @@ export default function GalleryPage() {
       }
 
       if (selectedGallery) {
-        await api.put(`/gallery/${selectedGallery.id}`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.put(`/gallery/${selectedGallery.id}`, data);
       } else {
-        await api.post('/gallery', data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.post('/gallery', data);
       }
       setIsModalOpen(false);
       fetchGalleries();
