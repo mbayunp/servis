@@ -22,18 +22,35 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { title, content, excerpt, category, status, author } = req.body;
+    const { title, content, excerpt, category, status, author, image, imageUrl } = req.body;
+
     if (!title || !title.trim()) {
-      return res.status(400).json({ success: false, message: 'Judul artikel wajib diisi' });
+      return res.status(400).json({ success: false, message: 'Judul artikel wajib diisi.' });
     }
     if (!content || !content.trim()) {
-      return res.status(400).json({ success: false, message: 'Isi artikel wajib diisi' });
+      return res.status(400).json({ success: false, message: 'Isi konten artikel wajib diisi.' });
     }
-    let imagePath = req.body.image || null;
+
+    let imagePath: string | null = null;
     if (req.file) {
       imagePath = `/uploads/articles/${req.file.filename}`;
+    } else if (image && typeof image === 'string' && image.trim()) {
+      imagePath = image.trim();
+    } else if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim()) {
+      imagePath = imageUrl.trim();
     }
-    const slug = title ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : `article-${Date.now()}`;
+
+    if (!imagePath) {
+      return res.status(400).json({
+        success: false,
+        message: 'Gambar sampul artikel wajib diunggah atau dimasukkan via URL.'
+      });
+    }
+
+    const slug = title
+      ? title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      : `article-${Date.now()}`;
+
     const data = await Article.create({
       title: title.trim(),
       slug,
@@ -44,6 +61,7 @@ export const create = async (req: Request, res: Response) => {
       author: author || 'Admin',
       image: imagePath
     });
+
     res.status(201).json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -54,9 +72,9 @@ export const update = async (req: Request, res: Response) => {
   try {
     const data = await Article.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    
+
     const updateData: any = {};
-    if (req.body.title !== undefined) {
+    if (req.body.title !== undefined && req.body.title.trim()) {
       updateData.title = req.body.title.trim();
       updateData.slug = req.body.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     }
@@ -68,8 +86,10 @@ export const update = async (req: Request, res: Response) => {
 
     if (req.file) {
       updateData.image = `/uploads/articles/${req.file.filename}`;
-    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.trim() !== '') {
+    } else if (req.body.image && typeof req.body.image === 'string' && req.body.image.trim()) {
       updateData.image = req.body.image.trim();
+    } else if (req.body.imageUrl && typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim()) {
+      updateData.image = req.body.imageUrl.trim();
     }
 
     await data.update(updateData);

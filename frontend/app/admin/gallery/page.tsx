@@ -103,8 +103,8 @@ export default function GalleryPage() {
 
       if (selectedFile) {
         data.append('image', selectedFile);
-      } else if (formData.imageUrl) {
-        data.append('imageUrl', formData.imageUrl);
+      } else if (formData.imageUrl && formData.imageUrl.trim()) {
+        data.append('imageUrl', formData.imageUrl.trim());
       }
 
       if (selectedGallery) {

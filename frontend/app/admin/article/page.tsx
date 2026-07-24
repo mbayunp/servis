@@ -119,8 +119,8 @@ export default function ArticlePage() {
 
       if (selectedFile) {
         data.append('image', selectedFile);
-      } else if (formData.image) {
-        data.append('image', formData.image);
+      } else if (formData.image && formData.image.trim()) {
+        data.append('image', formData.image.trim());
       }
 
       if (selectedArticle) {
