@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from './axios';
+
 export const getImageUrl = (imagePath?: string | null) => {
   if (!imagePath) return '/placeholder-image.png'; // Fallback image
   
@@ -6,7 +8,7 @@ export const getImageUrl = (imagePath?: string | null) => {
     return imagePath;
   }
   
-  const backendUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+  const backendUrl = getApiBaseUrl().replace(/\/api\/?$/, '');
   
   // Ensure correct path slashes
   const cleanPath = imagePath.startsWith('/') ? imagePath : `/uploads/${imagePath}`;

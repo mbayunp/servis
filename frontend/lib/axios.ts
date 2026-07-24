@@ -1,8 +1,21 @@
 import axios from 'axios';
 
+export const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:5000/api';
+  }
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/servis/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
 // Create Axios Instance
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Pointing to Backend
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json'
   }
@@ -69,7 +82,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const { data } = await axios.post('http://localhost:5000/api/auth/refresh', {
+        const { data } = await axios.post(`${getApiBaseUrl()}/auth/refresh`, {
           refreshToken
         });
 

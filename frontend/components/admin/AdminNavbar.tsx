@@ -86,7 +86,7 @@ export function AdminNavbar({ onToggleSidebar }: AdminNavbarProps) {
         </div>
 
         {/* Logout Button */}
-        <button 
+        <button
           onClick={handleLogout}
           className="p-1.5 sm:p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors rounded-xl cursor-pointer ml-1"
           title="Logout"
