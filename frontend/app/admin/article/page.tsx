@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, FileText, Edit2, Trash2, RefreshCw, X, AlertCircle, CheckCircle2, Eye, Upload } from 'lucide-react';
 import api from '../../../lib/axios';
 import { getImageUrl } from '../../../lib/utils';
+import { ARTICLE_CATEGORIES } from '../../../lib/constants';
 
 interface ArticleItem {
   id: string;
@@ -23,6 +24,7 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
 
   // Notification Toast
   const [successNotification, setSuccessNotification] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export default function ArticlePage() {
     title: '',
     excerpt: '',
     content: '',
-    category: 'Edukasi Servis',
+    category: ARTICLE_CATEGORIES[0] as string,
     status: 'PUBLISHED',
     author: 'Admin'
   });
@@ -76,7 +78,7 @@ export default function ArticlePage() {
         title: art.title,
         excerpt: art.excerpt || '',
         content: art.content,
-        category: art.category || 'Edukasi Servis',
+        category: art.category || ARTICLE_CATEGORIES[0],
         status: art.status as any,
         author: art.author || 'Admin',
       });
@@ -86,7 +88,7 @@ export default function ArticlePage() {
         title: '',
         excerpt: '',
         content: '',
-        category: 'Edukasi Servis',
+        category: ARTICLE_CATEGORIES[0],
         status: 'PUBLISHED',
         author: 'Admin'
       });
@@ -170,7 +172,8 @@ export default function ArticlePage() {
     const matchesSearch = art.title.toLowerCase().includes(search.toLowerCase()) ||
       (art.excerpt && art.excerpt.toLowerCase().includes(search.toLowerCase()));
     const matchesStatus = statusFilter === '' || art.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesCategory = categoryFilter === '' || (art.category && art.category.toLowerCase() === categoryFilter.toLowerCase());
+    return matchesSearch && matchesStatus && matchesCategory;
   });
 
   return (
@@ -220,6 +223,19 @@ export default function ArticlePage() {
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="">Semua Kategori</option>
+            {ARTICLE_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -369,13 +385,17 @@ export default function ArticlePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Kategori</label>
-                  <input
-                    type="text"
-                    placeholder="Edukasi, Tips, News"
+                  <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                  />
+                  >
+                    {ARTICLE_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>

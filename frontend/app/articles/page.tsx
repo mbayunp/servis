@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Calendar, User, ArrowRight, BookOpen, Tag, Sparkles } from 'lucide-react';
 import api from '../../lib/axios';
 import { getImageUrl } from '../../lib/utils';
+import { ARTICLE_CATEGORIES } from '../../lib/constants';
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<any[]>([]);
@@ -30,10 +31,17 @@ export default function ArticlesPage() {
     }
   };
 
-  const categories = ['Semua', 'Tips & Trik', 'Panduan Perawatan', 'Edukasi Elektronik'];
+  const categories = [
+    'Semua',
+    ...Array.from(
+      new Set([...ARTICLE_CATEGORIES, ...articles.map((art) => art.category).filter(Boolean)])
+    )
+  ];
 
   const filteredArticles = articles.filter((art) => {
-    const matchesCategory = selectedCategory === 'Semua' || art.category === selectedCategory;
+    const matchesCategory =
+      selectedCategory === 'Semua' ||
+      (art.category && art.category.toLowerCase() === selectedCategory.toLowerCase());
     const matchesSearch =
       art.title?.toLowerCase().includes(search.toLowerCase()) ||
       art.excerpt?.toLowerCase().includes(search.toLowerCase()) ||

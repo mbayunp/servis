@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, X, Maximize2, Sparkles, CheckCircle2 } from 'lucide-react';
 import api from '../../lib/axios';
 import { getImageUrl } from '../../lib/utils';
+import { GALLERY_CATEGORIES } from '../../lib/constants';
 
 export default function GalleryPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -29,11 +30,16 @@ export default function GalleryPage() {
     }
   };
 
-  const categories = ['Semua', 'Perbaikan TV', 'Perbaikan Mesin Cuci', 'Perbaikan Kulkas', 'Perbaikan AC', 'Workshop'];
+  const categories = [
+    'Semua',
+    ...Array.from(
+      new Set([...GALLERY_CATEGORIES, ...items.map((g) => g.category).filter(Boolean)])
+    )
+  ];
 
   const filteredItems = items.filter((item) => {
     if (selectedCategory === 'Semua') return true;
-    return item.category === selectedCategory;
+    return item.category && item.category.toLowerCase() === selectedCategory.toLowerCase();
   });
 
   return (

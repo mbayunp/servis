@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, Image as ImageIcon, Edit2, Trash2, RefreshCw, X, AlertCircle, CheckCircle2, Eye, Tag, Upload } from 'lucide-react';
 import api from '../../../lib/axios';
 import { getImageUrl } from '../../../lib/utils';
+import { GALLERY_CATEGORIES } from '../../../lib/constants';
 
 interface GalleryItem {
   id: string;
@@ -28,7 +29,7 @@ export default function GalleryPage() {
   const [selectedGallery, setSelectedGallery] = useState<GalleryItem | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    category: 'Hasil Servis',
+    category: GALLERY_CATEGORIES[0] as string,
     description: ''
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -67,14 +68,14 @@ export default function GalleryPage() {
       setSelectedGallery(gal);
       setFormData({
         title: gal.title,
-        category: gal.category || 'Hasil Servis',
+        category: gal.category || GALLERY_CATEGORIES[0],
         description: gal.description || '',
       });
     } else {
       setSelectedGallery(null);
       setFormData({
         title: '',
-        category: 'Hasil Servis',
+        category: GALLERY_CATEGORIES[0],
         description: ''
       });
     }
@@ -153,7 +154,7 @@ export default function GalleryPage() {
   const filteredGalleries = galleries.filter((gal) => {
     const matchesSearch = gal.title.toLowerCase().includes(search.toLowerCase()) ||
       (gal.description && gal.description.toLowerCase().includes(search.toLowerCase()));
-    const matchesCategory = categoryFilter === '' || gal.category === categoryFilter;
+    const matchesCategory = categoryFilter === '' || (gal.category && gal.category.toLowerCase() === categoryFilter.toLowerCase());
     return matchesSearch && matchesCategory;
   });
 
@@ -210,9 +211,11 @@ export default function GalleryPage() {
             className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             <option value="">Semua Kategori</option>
-            <option value="Hasil Servis">Hasil Servis</option>
-            <option value="Toko & Workshop">Toko & Workshop</option>
-            <option value="Proses Perbaikan">Proses Perbaikan</option>
+            {GALLERY_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
 
           <button
@@ -353,9 +356,11 @@ export default function GalleryPage() {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
-                  <option value="Hasil Servis">Hasil Servis</option>
-                  <option value="Toko & Workshop">Toko & Workshop</option>
-                  <option value="Proses Perbaikan">Proses Perbaikan</option>
+                  {GALLERY_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
                 </select>
               </div>
 
