@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, X, Maximize2, Sparkles, CheckCircle2 } from 'lucide-react';
 import api from '../../lib/axios';
+import { getImageUrl } from '../../lib/utils';
 
 export default function GalleryPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -91,7 +92,7 @@ export default function GalleryPage() {
                 {/* Image Container */}
                 <div className="relative h-60 w-full overflow-hidden bg-slate-100">
                   <img
-                    src={item.imageUrl || item.photoUrl || '/workshop.jpg'}
+                    src={getImageUrl(item.imageUrl || item.photoUrl)}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -151,7 +152,7 @@ export default function GalleryPage() {
           >
             <div className="relative h-80 sm:h-96 w-full bg-slate-950">
               <img
-                src={activeModalItem.imageUrl || activeModalItem.photoUrl || '/workshop.jpg'}
+                src={getImageUrl(activeModalItem.imageUrl || activeModalItem.photoUrl)}
                 alt={activeModalItem.title}
                 className="w-full h-full object-contain"
               />

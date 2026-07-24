@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Calendar, User, ArrowRight, BookOpen, Tag, Sparkles } from 'lucide-react';
 import api from '../../lib/axios';
+import { getImageUrl } from '../../lib/utils';
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<any[]>([]);
@@ -104,11 +105,11 @@ export default function ArticlesPage() {
               >
                 {/* Featured Image */}
                 <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
-                  <img
-                    src={article.image || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'}
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                    <img
+                      src={getImageUrl(article.image) || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'}
+                      alt={article.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   <div className="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
                     {article.category || 'Edukasi'}
                   </div>

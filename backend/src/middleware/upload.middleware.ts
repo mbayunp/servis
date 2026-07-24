@@ -39,3 +39,5 @@ export const technicianUpload = createUploader('uploads/technician/');
 export const beforeUpload = createUploader('uploads/before/');
 export const afterUpload = createUploader('uploads/after/');
 export const paymentUpload = createUploader('uploads/finance/payments/');
+export const articleUpload = createUploader('uploads/articles/');
+export const galleryUpload = createUploader('uploads/gallery/');

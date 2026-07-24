@@ -22,7 +22,11 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const data = await Gallery.create(req.body);
+    let imagePath = req.body.imageUrl || null;
+    if (req.file) {
+      imagePath = `/uploads/gallery/${req.file.filename}`;
+    }
+    const data = await Gallery.create({ ...req.body, imageUrl: imagePath });
     res.status(201).json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -33,7 +37,11 @@ export const update = async (req: Request, res: Response) => {
   try {
     const data = await Gallery.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    await data.update(req.body);
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.imageUrl = `/uploads/gallery/${req.file.filename}`;
+    }
+    await data.update(updateData);
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });

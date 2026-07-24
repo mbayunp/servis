@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Calendar, User, Tag, Share2, Wrench, CheckCircle } from 'lucide-react';
 import api from '../../../lib/axios';
+import { getImageUrl } from '../../../lib/utils';
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -96,7 +97,7 @@ export default function ArticleDetailPage() {
         {/* Featured Image */}
         {article.image && (
           <div className="rounded-2xl overflow-hidden shadow-sm border border-slate-200 h-[380px] w-full bg-slate-100">
-            <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+            <img src={getImageUrl(article.image)} alt={article.title} className="w-full h-full object-cover" />
           </div>
         )}
 

@@ -22,8 +22,12 @@ export const getById = async (req: Request, res: Response) => {
 
 export const create = async (req: Request, res: Response) => {
   try {
+    let imagePath = req.body.image || null;
+    if (req.file) {
+      imagePath = `/uploads/articles/${req.file.filename}`;
+    }
     const slug = req.body.title ? req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') : `article-${Date.now()}`;
-    const data = await Article.create({ ...req.body, slug });
+    const data = await Article.create({ ...req.body, image: imagePath, slug });
     res.status(201).json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
@@ -34,7 +38,11 @@ export const update = async (req: Request, res: Response) => {
   try {
     const data = await Article.findByPk(req.params.id as string);
     if (!data) return res.status(404).json({ success: false, message: 'Not found' });
-    await data.update(req.body);
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.image = `/uploads/articles/${req.file.filename}`;
+    }
+    await data.update(updateData);
     res.json({ success: true, data });
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
