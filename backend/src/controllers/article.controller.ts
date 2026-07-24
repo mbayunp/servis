@@ -33,22 +33,23 @@ export const create = async (req: Request, res: Response) => {
 
     let finalImagePath: string | null = null;
 
+    // Force File Path Assignment if file uploaded via Multer
     if (req.file) {
-      finalImagePath = `/uploads/articles/${req.file.filename}`;
-    } else if (typeof req.body.image === 'string' && req.body.image.trim() !== '') {
+      finalImagePath = '/uploads/articles/' + req.file.filename;
+    } else if (typeof req.body.image === 'string' && req.body.image.trim() !== '' && !req.body.image.includes('unsplash.com')) {
       finalImagePath = req.body.image.trim();
-    } else if (Array.isArray(req.body.image) && typeof req.body.image[0] === 'string' && req.body.image[0].trim() !== '') {
+    } else if (Array.isArray(req.body.image) && typeof req.body.image[0] === 'string' && req.body.image[0].trim() !== '' && !req.body.image[0].includes('unsplash.com')) {
       finalImagePath = req.body.image[0].trim();
-    } else if (typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim() !== '') {
+    } else if (typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim() !== '' && !req.body.imageUrl.includes('unsplash.com')) {
       finalImagePath = req.body.imageUrl.trim();
-    } else if (Array.isArray(req.body.imageUrl) && typeof req.body.imageUrl[0] === 'string' && req.body.imageUrl[0].trim() !== '') {
+    } else if (Array.isArray(req.body.imageUrl) && typeof req.body.imageUrl[0] === 'string' && req.body.imageUrl[0].trim() !== '' && !req.body.imageUrl[0].includes('unsplash.com')) {
       finalImagePath = req.body.imageUrl[0].trim();
     }
 
     if (!finalImagePath) {
       return res.status(400).json({
         success: false,
-        message: 'Gambar sampul artikel wajib diunggah atau dimasukkan via URL.'
+        message: 'Gambar sampul artikel wajib diunggah.'
       });
     }
 
@@ -87,21 +88,13 @@ export const update = async (req: Request, res: Response) => {
     if (typeof req.body.status === 'string') updateData.status = req.body.status;
     if (typeof req.body.author === 'string') updateData.author = req.body.author;
 
-    let finalImagePath: string | null = null;
+    // Force File Path Assignment if file uploaded via Multer
     if (req.file) {
-      finalImagePath = `/uploads/articles/${req.file.filename}`;
-    } else if (typeof req.body.image === 'string' && req.body.image.trim() !== '') {
-      finalImagePath = req.body.image.trim();
-    } else if (Array.isArray(req.body.image) && typeof req.body.image[0] === 'string' && req.body.image[0].trim() !== '') {
-      finalImagePath = req.body.image[0].trim();
-    } else if (typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim() !== '') {
-      finalImagePath = req.body.imageUrl.trim();
-    } else if (Array.isArray(req.body.imageUrl) && typeof req.body.imageUrl[0] === 'string' && req.body.imageUrl[0].trim() !== '') {
-      finalImagePath = req.body.imageUrl[0].trim();
-    }
-
-    if (finalImagePath) {
-      updateData.image = finalImagePath;
+      updateData.image = '/uploads/articles/' + req.file.filename;
+    } else if (typeof req.body.image === 'string' && req.body.image.trim() !== '' && !req.body.image.includes('unsplash.com')) {
+      updateData.image = req.body.image.trim();
+    } else if (Array.isArray(req.body.image) && typeof req.body.image[0] === 'string' && req.body.image[0].trim() !== '' && !req.body.image[0].includes('unsplash.com')) {
+      updateData.image = req.body.image[0].trim();
     }
 
     await data.update(updateData);
