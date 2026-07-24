@@ -82,7 +82,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950 relative py-12 px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
-      
+
       {/* Back to Home Button */}
       <Link href="/" className="absolute top-6 left-6 z-20 flex items-center gap-2 text-slate-400 hover:text-white transition-all text-sm font-semibold bg-slate-900/40 hover:bg-slate-800/60 backdrop-blur-md px-4 py-2 rounded-full border border-slate-800 hover:border-slate-600">
         <FaHome className="text-sm" />
@@ -92,22 +92,22 @@ export default function LoginPage() {
       {/* Dynamic Background Ambient Gradients */}
       <div className="absolute top-[-10%] left-[-10%] w-180 h-180 rounded-full bg-linear-to-br from-red-600/30 to-red-900/10 blur-[120px] pointer-events-none animate-pulse"></div>
       <div className="absolute bottom-[-15%] right-[-10%] w-140 h-140 rounded-full bg-linear-to-tr from-red-500/20 to-orange-500/10 blur-[100px] pointer-events-none"></div>
-      
+
       {/* Subtle Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-size-[4rem_4rem] pointer-events-none"></div>
 
       <div className={`max-w-md w-full space-y-8 p-8 sm:p-10 bg-slate-900/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-800/80 relative z-10 transition-all duration-300 ${shake ? 'animate-bounce border-red-500/50 shadow-red-950/50' : ''}`}>
-        
+
         {/* Header Branding */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold tracking-wide uppercase">
             <FaShieldAlt className="text-xs" />
             Portal Administrasi & Teknisi
           </div>
-          
+
           <div className="flex justify-center pt-2 transition-transform hover:scale-105 duration-300">
             <Image
-              src="/logo.png"
+              src="/servis/logo.png"
               alt="Service Cianjur Logo"
               width={120}
               height={120}
@@ -115,7 +115,7 @@ export default function LoginPage() {
               priority
             />
           </div>
-          
+
           <div>
             <h2 className="text-3xl font-extrabold tracking-tight text-white">
               Servis<span className="text-red-500"> Cianjur</span>
@@ -127,7 +127,7 @@ export default function LoginPage() {
         </div>
 
         {/* Quick Demo Credentials Pill */}
-        <div 
+        <div
           onClick={fillQuickDemo}
           className="p-3 bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-xl cursor-pointer transition-all duration-200 flex items-center justify-between text-xs text-slate-300 group"
           title="Klik untuk mengisi data login default admin"
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 <p className="font-bold text-red-300 mb-0.5">Gagal Masuk</p>
                 <p className="leading-relaxed text-red-200/90">{error}</p>
               </div>
-              <button 
+              <button
                 type="button"
                 onClick={() => setError('')}
                 className="text-red-400 hover:text-white transition-colors text-sm font-bold px-1"

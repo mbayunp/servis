@@ -35,8 +35,8 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled
-          ? 'bg-white/90 backdrop-blur-md shadow-md py-3'
-          : 'bg-white shadow-sm py-5'
+        ? 'bg-white/90 backdrop-blur-md shadow-md py-3'
+        : 'bg-white shadow-sm py-5'
         }`}
     >
       <div className="container mx-auto px-6">
@@ -44,7 +44,7 @@ export default function Navbar() {
           {/* Logo Perusahaan */}
           <Link href="/" className="hover:scale-105 transition-transform duration-300 flex items-center gap-3">
             <Image
-              src="/logo.png"
+              src="/servis/logo.png"
               alt="Service Cianjur Logo"
               width={160}
               height={48}

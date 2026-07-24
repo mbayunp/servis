@@ -3,16 +3,16 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import NextImage from 'next/image';
-import { 
-  LayoutDashboard, 
-  CalendarCheck, 
-  Users, 
-  Wrench, 
-  Map, 
-  Receipt, 
-  FileText, 
-  Image, 
-  MessageSquare, 
+import {
+  LayoutDashboard,
+  CalendarCheck,
+  Users,
+  Wrench,
+  Map,
+  Receipt,
+  FileText,
+  Image,
+  MessageSquare,
   Settings,
   LogOut,
   Tag,
@@ -95,14 +95,13 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
 
       {/* Sidebar Panel */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white text-slate-900 border-r border-slate-200 shadow-lg flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${
-          isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white text-slate-900 border-r border-slate-200 shadow-lg flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 ${isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+          }`}
       >
         <div className="flex items-center justify-between h-16 px-6 border-b-2 border-red-600 shrink-0 bg-white">
           <div className="flex items-center gap-2.5">
             <NextImage
-              src="/logo.png"
+              src="/servis/logo.png"
               alt="Servis Cianjur Logo"
               width={36}
               height={36}
@@ -135,16 +134,14 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
                         key={item.name}
                         href={item.href}
                         onClick={onClose}
-                        className={`group flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all duration-200 ${
-                          isActive
+                        className={`group flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
                             ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
                             : 'text-slate-700 hover:bg-red-50 hover:text-red-600'
-                        }`}
+                          }`}
                       >
                         <item.icon
-                          className={`mr-3 shrink-0 h-4 w-4 transition-colors ${
-                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-red-600'
-                          }`}
+                          className={`mr-3 shrink-0 h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-red-600'
+                            }`}
                           aria-hidden="true"
                         />
                         {item.name}
@@ -158,7 +155,7 @@ export function AdminSidebar({ isOpen = false, onClose }: AdminSidebarProps) {
         </div>
 
         <div className="p-4 border-t border-slate-200 space-y-3 shrink-0 bg-slate-50">
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center px-3 py-2.5 text-xs md:text-sm font-semibold rounded-xl text-slate-700 hover:bg-red-600 hover:text-white transition-all cursor-pointer shadow-xs"
           >

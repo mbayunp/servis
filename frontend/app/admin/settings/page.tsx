@@ -139,7 +139,7 @@ export default function SettingsPage() {
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Logo URL (Gambar Header)</label>
               <input
                 type="url"
-                placeholder="https://example.com/logo.png"
+                placeholder="https://example.com/servis/logo.png"
                 value={formData.logoUrl}
                 onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

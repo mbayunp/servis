@@ -16,16 +16,16 @@ export default function Footer() {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          
+
           {/* Kolom Info */}
           <div>
             <Link href="/" className="inline-block mb-6 hover:scale-105 transition-transform duration-300">
-              <Image 
-                src="/logo.png" 
-                alt="Service Cianjur Logo" 
-                width={180} 
-                height={54} 
-                className="h-12 w-auto object-contain" 
+              <Image
+                src="/servis/logo.png"
+                alt="Service Cianjur Logo"
+                width={180}
+                height={54}
+                className="h-12 w-auto object-contain"
               />
             </Link>
             <p className="text-gray-600 mb-6 leading-relaxed">
@@ -46,8 +46,8 @@ export default function Footer() {
 
             {/* Tombol Login Admin */}
             <div className="mt-8">
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="inline-flex items-center gap-2 text-xs bg-gray-100 text-gray-700 hover:text-white hover:bg-red-600 font-bold py-2.5 px-5 rounded-lg shadow-sm transition-all duration-300 border border-gray-300 hover:border-red-500"
               >
                 Login Admin
@@ -63,8 +63,8 @@ export default function Footer() {
                 const paths = ["/", "/about", "/services", "/tracking"];
                 return (
                   <li key={index} className="group">
-                    <Link 
-                      href={paths[index]} 
+                    <Link
+                      href={paths[index]}
                       className="flex items-center hover:text-red-600 transition-colors duration-300"
                     >
                       <span className="text-red-500 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 mr-2">
@@ -94,7 +94,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start hover:text-red-600 transition-colors group">
                 <FaClock className="text-red-500 mt-1 mr-4 shrink-0 group-hover:scale-110 transition-transform" />
-                <span>Senin - Sabtu <br/>(08:00 - 17:00)</span>
+                <span>Senin - Sabtu <br />(08:00 - 17:00)</span>
               </li>
             </ul>
           </div>
