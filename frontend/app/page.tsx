@@ -65,39 +65,39 @@ export default function HomePage() {
   };
 
   const whyChooseUs = [
-    { 
-      title: "Pengalaman 30+ Tahun", 
-      desc: "Berdiri sejak 1990 melayani perbaikan elektronik di Kabupaten Cianjur dengan reputasi terpercaya.", 
+    {
+      title: "Pengalaman 30+ Tahun",
+      desc: "Berdiri sejak 1990 melayani perbaikan elektronik di Kabupaten Cianjur dengan reputasi terpercaya.",
       icon: <FaHistory />,
       badge: "Est. 1990"
     },
-    { 
-      title: "Layanan Home Service", 
-      desc: "Teknisi berpengalaman siap datang langsung ke rumah Anda untuk pengecekan & perbaikan.", 
+    {
+      title: "Layanan Home Service",
+      desc: "Teknisi berpengalaman siap datang langsung ke rumah Anda untuk pengecekan & perbaikan.",
       icon: <FaHome />,
       badge: "Kunjungan Rumah"
     },
-    { 
-      title: "Garansi Perbaikan Resmi", 
-      desc: "Setiap pengerjaan dilengkapi garansi hingga 30 hari untuk menjamin ketenangan Anda.", 
+    {
+      title: "Garansi Perbaikan Resmi",
+      desc: "Setiap pengerjaan dilengkapi garansi hingga 30 hari untuk menjamin ketenangan Anda.",
       icon: <FaShieldAlt />,
       badge: "Garansi 30 Hari"
     },
-    { 
-      title: "Semua Merk & Model", 
-      desc: "Penanganan profesional untuk TV, Mesin Cuci, Kulkas, AC, hingga perangkat rumah tangga.", 
+    {
+      title: "Semua Merk & Model",
+      desc: "Penanganan profesional untuk TV, Mesin Cuci, Kulkas, AC, hingga perangkat rumah tangga.",
       icon: <FaCheckCircle />,
       badge: "Multi-Brand"
     },
-    { 
-      title: "Teknisi Sertifikasi", 
-      desc: "Eks Authorized Service Center Polytron dengan standar kualitas penanganan pabrikan.", 
+    {
+      title: "Teknisi Sertifikasi",
+      desc: "Eks Authorized Service Center Polytron dengan standar kualitas penanganan pabrikan.",
       icon: <FaUserTie />,
       badge: "Ahli & Teruji"
     },
-    { 
-      title: "Diagnosa Transparan", 
-      desc: "Pemeriksaan detail, estimasi rincian biaya yang jelas di awal tanpa biaya tersembunyi.", 
+    {
+      title: "Diagnosa Transparan",
+      desc: "Pemeriksaan detail, estimasi rincian biaya yang jelas di awal tanpa biaya tersembunyi.",
       icon: <FaWrench />,
       badge: "Tanpa Biaya Siluman"
     }
@@ -154,10 +154,10 @@ export default function HomePage() {
       <section className="relative bg-slate-950 text-white pt-28 pb-20 md:pt-36 md:pb-28 border-b-4 border-red-600 overflow-hidden">
         {/* Background Subtle Line Pattern */}
         <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#dc2626_1px,transparent_1px)] bg-size-[24px_24px]"></div>
-        
+
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
+
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/40 px-3.5 py-1.5 rounded-full text-xs font-bold text-red-400 uppercase tracking-wider">
@@ -199,16 +199,16 @@ export default function HomePage() {
 
               {/* Call to Actions */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-                <Link 
-                  href="/booking" 
+                <Link
+                  href="/booking"
                   className="bg-red-600 hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg shadow-red-600/30 hover:shadow-red-600/50 transition-all flex items-center gap-2 text-sm cursor-pointer"
                 >
                   Booking Servis Online <FaArrowRight className="text-xs" />
                 </Link>
-                <a 
-                  href={profile.whatsappUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href={profile.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="bg-slate-900 border border-slate-700 hover:border-slate-500 text-white font-bold px-6 py-3.5 rounded-xl transition-all flex items-center gap-2 text-sm shadow-sm"
                 >
                   <FaWhatsapp className="text-green-500 text-lg" /> Konsultasi Gratis
@@ -222,7 +222,7 @@ export default function HomePage() {
                 <div className="absolute -inset-1.5 bg-linear-to-r from-red-600 to-black rounded-3xl blur opacity-30"></div>
                 <div className="relative bg-slate-900 border-2 border-red-600/40 rounded-2xl overflow-hidden shadow-2xl">
                   <Image
-                    src="/workshop.png"
+                    src="/servis/workshop.png"
                     alt="Workshop Service Cianjur"
                     width={600}
                     height={450}
@@ -268,7 +268,7 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
+
             <div className="lg:col-span-6 space-y-5">
               <div className="inline-block bg-red-50 border border-red-200 text-red-700 font-bold px-3.5 py-1 rounded-full text-xs uppercase tracking-wider">
                 Profil Perusahaan
@@ -336,8 +336,8 @@ export default function HomePage() {
               { icon: <FaWrench />, title: 'Peralatan Rumah Tangga', desc: 'Perbaikan microwave, blender, dispenser panas/dingin, rice cooker digital, kipas angin, dan peralatan elektronik lainnya.' },
               { icon: <FaHome />, title: 'Home Service (Kunjungan)', desc: 'Teknisi kami siap datang langsung ke lokasi domisili Anda untuk pengecekan & perbaikan langsung di tempat.' }
             ].map((item, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-white p-7 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-red-600 transition-all duration-200 flex flex-col justify-between group"
               >
                 <div className="space-y-4">
@@ -360,8 +360,8 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link 
-              href="/services" 
+            <Link
+              href="/services"
               className="inline-flex items-center gap-2 bg-slate-900 hover:bg-red-600 text-white font-bold px-7 py-3.5 rounded-xl shadow-md transition-all text-xs sm:text-sm cursor-pointer"
             >
               Lihat Detail Semua Layanan <FaArrowRight className="text-xs" />
@@ -516,7 +516,7 @@ export default function HomePage() {
       <section className="py-20 bg-slate-50 border-t border-slate-200">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden grid grid-cols-1 lg:grid-cols-12">
-            
+
             {/* Info */}
             <div className="lg:col-span-5 p-8 sm:p-10 space-y-6">
               <div>
